@@ -6,7 +6,7 @@
     <title>CorteZap | Gestão de Salão & Barbearia</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#075e54">
+    <meta name="theme-color" content="#d4af37">
     
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -25,24 +25,183 @@
             --text: #333;
         }
         
+        /* ============================================ */
+        /* SOMBRA LEVE EM TODOS OS TEXTOS PRINCIPAIS */
+        /* ============================================ */
+        h1, h2, h3, p, span, .stat-number, .salon-name, .nav-item, .booking-card strong, .worker-card div {
+            text-shadow: 0px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        /* ============================================ */
+        /* CORREÇÃO DO CAMPO DATETIME-LOCAL */
+        /* ============================================ */
+        #cust-date {
+            display: block !important;
+            min-height: 50px !important;
+            width: 100% !important;
+            background-color: var(--white) !important;
+            color: var(--text) !important;
+            visibility: visible !important;
+            padding: 14px !important;
+            border: 2px solid #e0e0e0 !important;
+            border-radius: 10px !important;
+            font-size: 1rem !important;
+        }
+        
+        /* Força o seletor de data e hora a ser clicável no celular */
+        input[type="datetime-local"] {
+            min-height: 48px !important;
+            cursor: pointer;
+        }
+        
+        /* Força o ícone do calendário e relógio a aparecerem */
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            display: block !important;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            background-color: transparent;
+        }
+        
+        /* ============================================ */
+        /* TEMA BARBEARIA (Dark com dourado) */
+        /* ============================================ */
         body.theme-barber {
             --primary: #d4af37;
-            --secondary: #1a1a2e;
+            --secondary: #0a0a15;
             --bg: #0f0f1a;
             --white: #1a1a2e;
-            --text: #e0e0e0;
+            --text: #e8e8e8;
         }
         body.theme-barber .card {
             background: #16213e;
-            color: #e0e0e0;
+            color: #e8e8e8;
+        }
+        body.theme-barber .card h2, 
+        body.theme-barber .card h3, 
+        body.theme-barber .card h4 {
+            color: #d4af37 !important;
+            text-shadow: 0px 1px 3px rgba(0,0,0,0.3);
         }
         body.theme-barber .booking-card {
             background: #1a1a2e;
-            color: #e0e0e0;
+            color: #e8e8e8;
+        }
+        body.theme-barber .booking-card strong {
+            color: #d4af37;
         }
         body.theme-barber .nav {
             background: #1a1a2e;
         }
+        body.theme-barber .nav-item {
+            color: #888;
+        }
+        body.theme-barber .nav-item.active {
+            color: #d4af37;
+        }
+        body.theme-barber .stat-card {
+            background: linear-gradient(135deg, #0a0a15, #1a1a2e);
+            border: 1px solid #d4af37;
+        }
+        body.theme-barber .stat-number {
+            color: #d4af37;
+        }
+        body.theme-barber .total-box {
+            background: #0a0a15;
+            border: 1px solid #d4af37;
+        }
+        
+        /* Configurações de cor para o Tema Barber - Inputs */
+        body.theme-barber input, 
+        body.theme-barber select, 
+        body.theme-barber textarea {
+            background-color: #1a1a1a !important;
+            color: #d4af37 !important;
+            border: 1px solid #d4af37 !important;
+        }
+        
+        /* Correção específica para o campo datetime-local no tema Barber */
+        body.theme-barber #cust-date {
+            background-color: #1a1a1a !important;
+            color: #d4af37 !important;
+            border: 1px solid #d4af37 !important;
+            color-scheme: dark;
+        }
+        
+        /* Ícone do calendário no tema Barber - Inverte a cor para dourado */
+        body.theme-barber input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8) sepia(1) saturate(5) hue-rotate(15deg);
+        }
+        
+        body.theme-barber input::placeholder,
+        body.theme-barber textarea::placeholder {
+            color: #888 !important;
+        }
+        
+        body.theme-barber input[type="datetime-local"] {
+            color-scheme: dark;
+        }
+        
+        body.theme-barber label {
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+        
+        body.theme-barber .worker-card {
+            background: #1a1a1a;
+            border: 1px solid #d4af37;
+        }
+        body.theme-barber .worker-card div {
+            color: #e8e8e8 !important;
+        }
+        body.theme-barber .worker-card.selected {
+            background: #d4af37;
+            border-color: #ffffff;
+        }
+        body.theme-barber .worker-card.selected div {
+            color: #0a0a15 !important;
+        }
+        
+        body.theme-barber .service-item {
+            background: #1a1a1a;
+            border-left: 4px solid #d4af37;
+        }
+        body.theme-barber .service-item label {
+            color: #d4af37 !important;
+        }
+        
+        body.theme-barber .time-slot {
+            background: #1a1a1a;
+            color: #d4af37;
+            border: 1px solid #d4af37;
+        }
+        body.theme-barber .time-slot.selected {
+            background: #d4af37;
+            color: #0a0a15;
+        }
+        body.theme-barber .time-slot.occupied {
+            background: #333;
+            color: #666;
+            border-color: #666;
+        }
+        
+        body.theme-barber .date-slot {
+            background: #1a1a1a;
+            color: #d4af37;
+            border: 1px solid #d4af37;
+        }
+        body.theme-barber .date-slot.selected {
+            background: #d4af37;
+            color: #0a0a15;
+        }
+        
+        body.theme-barber .admin-list-item {
+            border-bottom: 1px dashed #d4af37;
+        }
+        
+        /* ============================================ */
+        /* TEMA SALÃO (Rosa minimalista) */
+        /* ============================================ */
         body.theme-salao {
             --primary: #e91e63;
             --secondary: #c2185b;
@@ -50,12 +209,50 @@
             --white: #ffffff;
             --text: #333;
         }
+        body.theme-salao input, 
+        body.theme-salao select, 
+        body.theme-salao textarea {
+            border: 1px solid #e91e63;
+        }
+        body.theme-salao label {
+            color: #c2185b;
+            font-weight: 600;
+        }
+        
+        /* ============================================ */
+        /* TEMA WHATS (Padrão) */
+        /* ============================================ */
         body.theme-whats {
             --primary: #25d366;
             --secondary: #075e54;
             --bg: #f0f2f5;
             --white: #ffffff;
             --text: #333;
+        }
+        
+        /* Estilo para a lista de clientes */
+        .cliente-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+        .cliente-item:hover {
+            background: rgba(0,0,0,0.02);
+        }
+        .cliente-item strong {
+            font-size: 1rem;
+        }
+        .cliente-item span {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .empty-list {
+            text-align: center;
+            color: #888;
+            padding: 30px;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -496,32 +693,43 @@
             transition: width 0.3s;
         }
         
-        /* Estilo para sobreposição de bloqueio */
         .block-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.9);
             z-index: 9999;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             flex-direction: column;
             color: white;
             text-align: center;
             padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+        .block-overlay.active {
+            display: flex;
         }
         .block-overlay h2 {
             margin-bottom: 20px;
+            color: #d4af37;
         }
         .block-overlay p {
             margin-bottom: 30px;
+            color: white;
         }
         .block-overlay .btn {
-            max-width: 200px;
-            margin: 0 auto;
+            max-width: 250px;
+            margin: 10px auto;
+        }
+        .block-overlay .card {
+            background: var(--white);
+            color: var(--text);
+            max-width: 380px;
+            border: 2px solid #d4af37;
         }
     </style>
 </head>
@@ -581,13 +789,13 @@
     </div>
     
     <!-- Overlay de bloqueio para trial expirado -->
-    <div id="block-overlay" style="display: none;" class="block-overlay">
-        <div class="card" style="background: var(--white); color: var(--text); max-width: 350px;">
-            <i class="fas fa-lock" style="font-size: 3rem; color: var(--danger); margin-bottom: 15px;"></i>
-            <h2 style="color: var(--danger);">Teste Encerrado</h2>
-            <p>Seu período de avaliação de 15 dias expirou.</p>
-            <p style="margin-bottom: 20px;">Assine por apenas <strong style="font-size: 1.3rem;">R$ 49,90/mês</strong></p>
-            <button class="btn" onclick="irParaPagamento()" style="background: var(--primary);">
+    <div id="block-overlay" class="block-overlay">
+        <div class="card">
+            <i class="fas fa-lock" style="font-size: 3rem; color: #d4af37; margin-bottom: 15px;"></i>
+            <h2>🔒 Assinatura Necessária</h2>
+            <p>Seu período de avaliação de 15 dias expirou ou sua assinatura está inativa.</p>
+            <p style="margin-bottom: 20px;">Renove por apenas <strong style="font-size: 1.3rem; color: #d4af37;">R$ 49,90/mês</strong></p>
+            <button class="btn" id="btn-assinar-agora" style="background: #d4af37; color: #0a0a15;">
                 <i class="fas fa-credit-card"></i> Assinar Agora
             </button>
         </div>
@@ -601,11 +809,14 @@
             </div>
             <div class="theme-selector">
                 <div class="theme-btn theme-whats" onclick="mudarTema('whats')" title="Tema WhatsApp"></div>
-                <div class="theme-btn theme-barber-btn" onclick="mudarTema('barber')" title="Tema Barbearia"></div>
+                <div class="theme-btn theme-barber-btn" onclick="mudarTema('barber')" title="Tema Barbearia (Dourado)"></div>
                 <div class="theme-btn theme-salao-btn" onclick="mudarTema('salao')" title="Tema Salão"></div>
             </div>
         </div>
         
+        <!-- ============================================ -->
+        <!-- PÁGINA INÍCIO (HOME) COM LISTA DE CLIENTES -->
+        <!-- ============================================ -->
         <section id="page-home" class="screen active">
             <div class="card">
                 <h4 style="color: var(--secondary); border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 5px;">
@@ -629,6 +840,18 @@
                         <div class="stat-number" id="month-revenue">R$0</div>
                         <div>Faturamento Mês</div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- ============================================ -->
+            <!-- LISTA DE PRÓXIMOS CLIENTES (HOJE) -->
+            <!-- ============================================ -->
+            <div class="card" style="margin-top: 20px;">
+                <h3 style="color: var(--secondary); margin-bottom: 15px;">
+                    <i class="fas fa-list-ul"></i> Próximos Clientes (Hoje)
+                </h3>
+                <div id="lista-clientes-hoje">
+                    <p style="color: #888; text-align: center;">Carregando agenda...</p>
                 </div>
             </div>
         </section>
@@ -655,7 +878,11 @@
                 <label style="font-size: 0.8rem; font-weight: bold; color: var(--secondary);">4. Escolha o Horário:</label>
                 <div id="time-slots" class="grid-slots"></div>
                 
-                <button class="btn" onclick="saveBooking()">
+                <!-- CAMPO DE DATA/HORA CORRIGIDO - VERSÃO DEFINITIVA -->
+                <label style="font-size: 0.8rem; font-weight: bold; color: var(--secondary); margin-top: 15px;">Ou escolha manualmente:</label>
+                <input type="datetime-local" id="cust-date" placeholder="Data e Hora">
+                
+                <button class="btn" onclick="saveBooking()" style="margin-top: 20px;">
                     <i class="fab fa-whatsapp"></i> Confirmar e Notificar
                 </button>
             </div>
@@ -700,9 +927,9 @@
         <section id="page-pay" class="screen">
             <div class="card" style="text-align: center;">
                 <i class="fas fa-lock" style="font-size: 3rem; color: var(--danger); margin-bottom: 15px;"></i>
-                <h2 style="color: var(--danger);">Teste Encerrado</h2>
-                <p style="margin: 15px 0;">Seu período de avaliação de 15 dias expirou.</p>
-                <p style="margin-bottom: 20px;">Assine por apenas <strong style="font-size: 1.3rem;">R$ 49,90/mês</strong></p>
+                <h2 style="color: var(--danger);">Ative sua Assinatura</h2>
+                <p style="margin: 15px 0;">Escolha a forma de pagamento abaixo para continuar usando o CorteZap.</p>
+                <p style="margin-bottom: 20px;">Apenas <strong style="font-size: 1.3rem;">R$ 49,90/mês</strong></p>
                 <div id="payment-brick_container"></div>
             </div>
         </section>
@@ -733,19 +960,19 @@
         </section>
         
         <nav class="nav">
-            <button class="nav-item active" onclick="navigate('page-home', this)">
+            <button class="nav-item active" data-page="page-home" id="nav-home">
                 <i class="fas fa-home"></i>Início
             </button>
-            <button class="nav-item" onclick="navigate('page-add', this)">
+            <button class="nav-item" data-page="page-add" id="nav-add">
                 <i class="fas fa-plus-circle"></i>Novo
             </button>
-            <button class="nav-item" onclick="navigate('page-reports', this)">
+            <button class="nav-item" data-page="page-reports" id="nav-reports">
                 <i class="fas fa-chart-line"></i>Relatórios
             </button>
-            <button class="nav-item" onclick="navigate('page-settings', this)">
+            <button class="nav-item" data-page="page-settings" id="nav-settings">
                 <i class="fas fa-tools"></i>Gestão
             </button>
-            <button class="nav-item" onclick="appLogout()">
+            <button class="nav-item" id="btn-logout-nav">
                 <i class="fas fa-sign-out-alt"></i>Sair
             </button>
         </nav>
@@ -772,6 +999,7 @@
         const storage = getStorage(app);
         
         let unsubscribeBookings = null;
+        let unsubscribeStatus = null;
         let currentUserId = null;
         let profissionalSelecionado = null;
         let dataSelecionada = null;
@@ -779,6 +1007,7 @@
         let revenueChart = null;
         let periodoAtual = 'semana';
         let profissionalParaFoto = null;
+        let acessoLiberadoGlobal = false;
         
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
@@ -799,7 +1028,141 @@
             }
         }
         
-        // Preview da imagem do SALÃO
+        // ============================================
+        // FUNÇÃO DEFINITIVA PARA CONFIGURAR DATA/HORA AUTOMÁTICA
+        // Formato: YYYY-MM-DDTHH:MM (exigido pelo HTML5)
+        // SEM segundos, SEM fuso horário problemático
+        // ============================================
+        function configurarDataAutomatica() {
+            const agora = new Date();
+            
+            // Pega os componentes da data localmente (sem fuso horário bagunçado)
+            const ano = agora.getFullYear();
+            const mes = String(agora.getMonth() + 1).padStart(2, '0');
+            const dia = String(agora.getDate()).padStart(2, '0');
+            const horas = String(agora.getHours()).padStart(2, '0');
+            const minutos = String(agora.getMinutes()).padStart(2, '0');
+
+            // Monta o formato EXATO: YYYY-MM-DDTHH:MM
+            const dataHoraCerta = `${ano}-${mes}-${dia}T${horas}:${minutos}`;
+            
+            const campoData = document.getElementById('cust-date');
+            if (campoData) {
+                campoData.value = dataHoraCerta;
+                console.log("📅 Data automática definida para: " + dataHoraCerta);
+            }
+        }
+        
+        function monitorarStatusSalao(salaoId) {
+            if (unsubscribeStatus) unsubscribeStatus();
+            
+            const userRef = doc(db, "saloes", salaoId);
+            unsubscribeStatus = onSnapshot(userRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const dados = docSnap.data();
+                    const statusAtual = dados.status;
+                    
+                    console.log("📡 Status atualizado do salão via onSnapshot:", statusAtual);
+                    
+                    if (statusAtual === 'pago' || statusAtual === 'ativo') {
+                        acessoLiberadoGlobal = true;
+                        document.getElementById('block-overlay').classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                        showToast("✅ Assinatura ativa! Acesso liberado.");
+                    } else {
+                        acessoLiberadoGlobal = false;
+                        document.getElementById('block-overlay').classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+            }, (error) => {
+                console.error("Erro ao monitorar status:", error);
+            });
+        }
+        
+        function configurarNavegacaoProtegida() {
+            const paginasProtegidas = ['page-home', 'page-add', 'page-reports', 'page-settings'];
+            const botoesNav = document.querySelectorAll('.nav-item[data-page]');
+            
+            botoesNav.forEach(botao => {
+                botao.removeEventListener('click', handleNavClick);
+                botao.addEventListener('click', handleNavClick);
+            });
+            
+            const btnLogout = document.getElementById('btn-logout-nav');
+            if (btnLogout) {
+                btnLogout.removeEventListener('click', appLogout);
+                btnLogout.addEventListener('click', appLogout);
+            }
+        }
+        
+        function handleNavClick(event) {
+            const botao = event.currentTarget;
+            const paginaId = botao.getAttribute('data-page');
+            
+            if (!paginaId) return;
+            
+            const paginasProtegidas = ['page-home', 'page-add', 'page-reports', 'page-settings'];
+            
+            if (paginasProtegidas.includes(paginaId) && !acessoLiberadoGlobal) {
+                showToast("🔒 Assinatura expirada. Renove para acessar.", true);
+                document.getElementById('block-overlay').classList.add('active');
+                return;
+            }
+            
+            navegarParaPagina(paginaId, botao);
+        }
+        
+        function navegarParaPagina(paginaId, botao) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const pagina = document.getElementById(paginaId);
+            if (pagina) pagina.classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if (botao) botao.classList.add('active');
+            
+            if (acessoLiberadoGlobal) {
+                carregarDadosPagina(paginaId);
+            }
+            
+            // 🔥 GATILHO: Se for a página de agendamento, preenche a data/hora automaticamente
+            if (paginaId === 'page-add') {
+                setTimeout(configurarDataAutomatica, 100);
+            }
+        }
+        
+        async function carregarDadosPagina(paginaId) {
+            if (!auth.currentUser) return;
+            
+            if (paginaId === 'page-add') {
+                await carregarProfissionaisAgendamento();
+                await carregarServicosAgendamento();
+                await carregarDatasDisponiveis();
+                profissionalSelecionado = null;
+                dataSelecionada = null;
+                horarioSelecionado = null;
+                document.getElementById('total-price').innerText = '0,00';
+                // Configurar data/hora automática
+                configurarDataAutomatica();
+            }
+            if (paginaId === 'page-settings') {
+                await carregarListaConfig('funcionarios', 'list-workers-config');
+                await carregarListaConfig('servicos', 'list-services-config');
+            }
+            if (paginaId === 'page-reports') {
+                await carregarRelatorios();
+            }
+        }
+        
+        function irParaPagamento() {
+            if (acessoLiberadoGlobal) {
+                showToast("✅ Seu acesso já está ativo!");
+                return;
+            }
+            navegarParaPagina('page-pay', null);
+            renderPayment();
+        }
+        
         document.getElementById('photo-file-salon')?.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -811,7 +1174,6 @@
             }
         });
         
-        // Preview da imagem do PROFISSIONAL
         document.getElementById('photo-file-worker')?.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -823,7 +1185,6 @@
             }
         });
         
-        // Upload da foto do SALÃO
         window.uploadFotoSalon = async () => {
             const fileInput = document.getElementById('photo-file-salon');
             const file = fileInput.files[0];
@@ -874,7 +1235,6 @@
             }
         };
         
-        // Upload da foto do PROFISSIONAL
         window.uploadFotoWorker = async () => {
             const fileInput = document.getElementById('photo-file-worker');
             const file = fileInput.files[0];
@@ -895,7 +1255,8 @@
             progressFill.style.width = '0%';
             
             try {
-                const storageRef = ref(storage, `saloes/${auth.currentUser.uid}/funcionarios/${profissionalParaFoto}.jpg`);
+                const nomeLimpo = profissionalParaFoto.replace(/\s/g, '_');
+                const storageRef = ref(storage, `saloes/${auth.currentUser.uid}/funcionarios/${nomeLimpo}.jpg`);
                 const uploadTask = uploadBytesResumable(storageRef, file);
                 
                 uploadTask.on('state_changed',
@@ -921,6 +1282,7 @@
                         fecharModalWorker();
                         showToast("Foto do profissional atualizada!");
                         await carregarListaConfig('funcionarios', 'list-workers-config');
+                        await carregarProfissionaisAgendamento();
                     }
                 );
             } catch (err) {
@@ -950,6 +1312,7 @@
         window.appLogout = async () => {
             try {
                 if (unsubscribeBookings) unsubscribeBookings();
+                if (unsubscribeStatus) unsubscribeStatus();
                 await signOut(auth);
                 showToast("Desconectado com sucesso");
             } catch (err) {
@@ -962,11 +1325,13 @@
                 await checkSystemAccess(user); 
             } else { 
                 if (unsubscribeBookings) unsubscribeBookings();
+                if (unsubscribeStatus) unsubscribeStatus();
                 document.getElementById('app-main').style.display = 'none';
                 document.getElementById('screen-auth').style.display = 'flex';
                 document.getElementById('screen-auth').classList.add('active');
-                document.getElementById('block-overlay').style.display = 'none';
+                document.getElementById('block-overlay').classList.remove('active');
                 currentUserId = null;
+                acessoLiberadoGlobal = false;
             }
         });
         
@@ -987,17 +1352,23 @@
                 document.getElementById('salon-logo').src = data.fotoUrl;
             }
             
+            monitorarStatusSalao(user.uid);
+            
             const criadoEm = data.criadoEm.toDate();
             const hoje = new Date();
             const diasPassados = Math.floor((hoje - criadoEm) / (1000 * 60 * 60 * 24));
-            const acessoLiberado = (data.status === 'pago' || diasPassados <= 15);
+            const statusSalon = data.status;
             
-            if (acessoLiberado) {
+            if (statusSalon === 'pago' || (statusSalon === 'trial' && diasPassados <= 15)) {
+                acessoLiberadoGlobal = true;
                 document.getElementById('screen-auth').style.display = 'none';
                 document.getElementById('app-main').style.display = 'block';
-                document.getElementById('block-overlay').style.display = 'none';
+                document.getElementById('block-overlay').classList.remove('active');
+                document.body.style.overflow = 'auto';
                 
-                if (data.status !== 'pago') {
+                configurarNavegacaoProtegida();
+                
+                if (statusSalon !== 'pago') {
                     const diasRestantes = 15 - diasPassados;
                     document.getElementById('trial-banner').style.display = 'block';
                     document.getElementById('days-left').innerText = diasRestantes;
@@ -1010,15 +1381,16 @@
                 }
                 
                 startApp(user.uid);
+                navegarParaPagina('page-home', document.querySelector('.nav-item.active'));
             } else {
-                // 🔴 TRIAL EXPIRADO - Mostrar overlay de bloqueio
-                document.getElementById('app-main').style.display = 'none';
+                acessoLiberadoGlobal = false;
                 document.getElementById('screen-auth').style.display = 'none';
-                document.getElementById('block-overlay').style.display = 'flex';
+                document.getElementById('app-main').style.display = 'block';
+                document.getElementById('block-overlay').classList.add('active');
+                document.body.style.overflow = 'hidden';
+                showToast("🔒 Período de teste expirado. Renove sua assinatura.", true);
                 
-                // Inicializar o pagamento mesmo sem mostrar o app completo
-                renderPayment();
-                showToast("Período de teste expirado. Faça a assinatura para continuar.", true);
+                configurarNavegacaoProtegida();
             }
         }
         
@@ -1030,16 +1402,23 @@
             
             const q = query(collection(db, "agendamentos"), where("salonId", "==", uid), orderBy("dataTimestamp", "asc"));
             
+            if (unsubscribeBookings) unsubscribeBookings();
             unsubscribeBookings = onSnapshot(q, (snap) => {
                 const list = document.getElementById('booking-list');
+                const listaHojeContainer = document.getElementById('lista-clientes-hoje');
                 let todayCount = 0;
                 let weekCount = 0;
                 let monthRevenue = 0;
                 const mesAtual = new Date().getMonth();
                 const anoAtual = new Date().getFullYear();
                 
+                const agendamentosHoje = [];
+                
                 if (snap.empty) {
                     list.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-times"></i><br>Nenhum agendamento para hoje</div>';
+                    if (listaHojeContainer) {
+                        listaHojeContainer.innerHTML = '<p class="empty-list">Nenhum cliente para hoje.</p>';
+                    }
                 } else {
                     let html = '';
                     snap.forEach(doc => {
@@ -1050,6 +1429,13 @@
                         
                         if (dataStr === hoje.toLocaleDateString('pt-BR')) {
                             todayCount++;
+                            agendamentosHoje.push({
+                                cliente: booking.cliente,
+                                hora: horaStr,
+                                profissional: booking.profissional,
+                                servicos: booking.servicos
+                            });
+                            
                             html += `
                                 <div class="booking-card">
                                     <div>
@@ -1073,6 +1459,25 @@
                         list.innerHTML = '<div class="empty-state"><i class="fas fa-smile"></i><br>Nenhum agendamento para hoje</div>';
                     } else {
                         list.innerHTML = html;
+                    }
+                    
+                    if (listaHojeContainer) {
+                        listaHojeContainer.innerHTML = "";
+                        
+                        if (agendamentosHoje.length === 0) {
+                            listaHojeContainer.innerHTML = '<p class="empty-list">Nenhum cliente para hoje.</p>';
+                        } else {
+                            agendamentosHoje.sort((a, b) => a.hora.localeCompare(b.hora));
+                            
+                            agendamentosHoje.forEach(agendamento => {
+                                listaHojeContainer.innerHTML += `
+                                    <div class="cliente-item">
+                                        <strong>${agendamento.cliente}</strong>
+                                        <span style="color: var(--primary);">${agendamento.hora}</span>
+                                    </div>
+                                `;
+                            });
+                        }
                     }
                 }
                 
@@ -1180,6 +1585,12 @@
         }
         
         window.saveBooking = async () => {
+            if (!acessoLiberadoGlobal) {
+                showToast("🔒 Assinatura expirada. Renove para agendar.", true);
+                document.getElementById('block-overlay').classList.add('active');
+                return;
+            }
+            
             const name = document.getElementById('cust-name').value.trim();
             
             const servicosSelecionados = [];
@@ -1201,35 +1612,48 @@
                 showToast("Selecione pelo menos um serviço", true);
                 return;
             }
-            if (!dataSelecionada) {
-                showToast("Selecione uma data", true);
-                return;
-            }
-            if (!horarioSelecionado) {
-                showToast("Selecione um horário", true);
-                return;
-            }
             
-            try {
+            let dataHoraFinal = null;
+            let dataHoraStr = "";
+            
+            // Verifica se tem data e hora selecionada pelos slots
+            if (dataSelecionada && horarioSelecionado) {
                 const [hora, minuto] = horarioSelecionado.split(':');
                 const dataObj = new Date(dataSelecionada);
                 dataObj.setHours(parseInt(hora), parseInt(minuto), 0, 0);
-                
+                dataHoraFinal = dataObj;
+                dataHoraStr = dataObj.toLocaleString('pt-BR');
+            } else {
+                // Usa o campo datetime-local manual
+                const datetimeManual = document.getElementById('cust-date').value;
+                if (!datetimeManual) {
+                    showToast("Selecione uma data e horário (pelos slots ou pelo campo manual)", true);
+                    return;
+                }
+                dataHoraFinal = new Date(datetimeManual);
+                if (isNaN(dataHoraFinal.getTime())) {
+                    showToast("Data/Hora inválida", true);
+                    return;
+                }
+                dataHoraStr = dataHoraFinal.toLocaleString('pt-BR');
+            }
+            
+            try {
                 await addDoc(collection(db, "agendamentos"), { 
                     salonId: auth.currentUser.uid,
                     cliente: name, 
                     profissional: profissionalSelecionado,
                     servicos: servicosSelecionados,
                     precoTotal: precoTotal,
-                    dataTimestamp: Timestamp.fromDate(dataObj),
+                    dataTimestamp: Timestamp.fromDate(dataHoraFinal),
                     criadoEm: Timestamp.now()
                 });
                 
-                const dataHoraStr = dataObj.toLocaleString('pt-BR');
                 showToast(`✓ ${name} agendado com ${profissionalSelecionado} - R$ ${precoTotal.toFixed(2)}!`);
                 notificarCliente(name, profissionalSelecionado, dataHoraStr);
                 
                 document.getElementById('cust-name').value = '';
+                document.getElementById('cust-date').value = '';
                 profissionalSelecionado = null;
                 dataSelecionada = null;
                 horarioSelecionado = null;
@@ -1238,7 +1662,11 @@
                 document.querySelectorAll('.date-slot').forEach(d => d.classList.remove('selected'));
                 document.querySelectorAll('.time-slot').forEach(t => t.classList.remove('selected'));
                 document.getElementById('total-price').innerText = '0,00';
-                navigate('page-home', document.querySelector('.nav-item'));
+                
+                // Resetar data automática para o próximo agendamento
+                configurarDataAutomatica();
+                
+                navegarParaPagina('page-home', document.querySelector('.nav-item.active'));
                 
             } catch (err) {
                 console.error("Erro:", err);
@@ -1264,7 +1692,7 @@
                 const fotoUrl = p.foto || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
                 card.innerHTML = `
                     <img src="${fotoUrl}" alt="Foto">
-                    <div style="font-size: 0.7rem; font-weight: bold;">${p.nome}</div>
+                    <div style="font-size: 0.7rem; font-weight: bold; color: var(--text);">${p.nome}</div>
                     <div style="font-size: 0.6rem; color: #666;">${p.especialidade || ''}</div>
                 `;
                 card.onclick = () => {
@@ -1434,14 +1862,12 @@
             profissionalParaFoto = null;
         };
         
-        window.irParaPagamento = () => {
-            document.getElementById('block-overlay').style.display = 'none';
-            document.getElementById('app-main').style.display = 'block';
-            navigate('page-pay', {});
-            renderPayment();
-        };
-        
         window.salvarProfissional = async () => {
+            if (!acessoLiberadoGlobal) {
+                showToast("🔒 Assinatura expirada. Renove para adicionar profissionais.", true);
+                return;
+            }
+            
             const nome = document.getElementById('worker-name').value.trim();
             const especialidade = document.getElementById('worker-skill').value.trim();
             
@@ -1474,6 +1900,11 @@
         };
         
         window.salvarServico = async () => {
+            if (!acessoLiberadoGlobal) {
+                showToast("🔒 Assinatura expirada. Renove para adicionar serviços.", true);
+                return;
+            }
+            
             const nome = document.getElementById('service-name-input').value.trim();
             const preco = parseFloat(document.getElementById('service-price-input').value);
             const duracao = parseInt(document.getElementById('service-duration-input').value);
@@ -1537,7 +1968,7 @@
                                     <span><strong>${label}</strong>${extraInfo}</span>
                                 </div>
                                 <div>
-                                    <button class="btn-delete" onclick="abrirModalWorker('${label}')" title="Alterar foto">
+                                    <button class="btn-delete" onclick="abrirModalWorker('${label.replace(/'/g, "\\'")}')" title="Alterar foto">
                                         <i class="fas fa-camera"></i>
                                     </button>
                                     <button class="btn-delete" onclick="removerItem('${colecao}', '${doc.id}')">
@@ -1578,30 +2009,6 @@
             }
         };
         
-        window.navigate = async (id, btn) => {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(btn && btn.classList) btn.classList.add('active');
-            
-            if (id === 'page-add' && auth.currentUser) {
-                await carregarProfissionaisAgendamento();
-                await carregarServicosAgendamento();
-                await carregarDatasDisponiveis();
-                profissionalSelecionado = null;
-                dataSelecionada = null;
-                horarioSelecionado = null;
-                document.getElementById('total-price').innerText = '0,00';
-            }
-            if (id === 'page-settings' && auth.currentUser) {
-                await carregarListaConfig('funcionarios', 'list-workers-config');
-                await carregarListaConfig('servicos', 'list-services-config');
-            }
-            if (id === 'page-reports' && auth.currentUser) {
-                await carregarRelatorios();
-            }
-        };
-        
         let mpRendered = false;
         function renderPayment() {
             if (mpRendered) return;
@@ -1614,13 +2021,29 @@
                     customization: { visual: { hideFormTitle: false, style: { theme: 'default' } } },
                     callbacks: { 
                         onSubmit: async () => { 
-                            alert("✔️ Pagamento recebido! Em produção, atualize o status do cliente."); 
+                            alert("✔️ Pagamento recebido! Atualizando assinatura...");
+                            if (auth.currentUser) {
+                                const userRef = doc(db, "saloes", auth.currentUser.uid);
+                                await updateDoc(userRef, { status: 'pago' });
+                                showToast("✅ Assinatura ativada! Acesso liberado.");
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 2000);
+                            }
                         }, 
-                        onError: (error) => showToast("Erro no pagamento", true) 
+                        onError: (error) => showToast("Erro no pagamento: " + JSON.stringify(error), true) 
                     }
                 });
             } catch (err) { console.error("Erro MP:", err); }
         }
+        
+        document.getElementById('btn-assinar-agora')?.addEventListener('click', () => {
+            irParaPagamento();
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            configurarNavegacaoProtegida();
+        });
     </script>
     
     <script>
