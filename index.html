@@ -4527,58 +4527,22 @@
             mpRendered = false;
 
             try {
-                // ─── MODO PRODUÇÃO: buscar preferenceId da Cloud Function ───
-                // Descomente quando tiver as credenciais de produção:
-                //
-                // const resp = await fetch('https://SUA_REGION-SEU_PROJETO.cloudfunctions.net/criarPreferencia', {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify({
-                //         salonId: auth.currentUser.uid,
-                //         plano: planoSelecionado,
-                //         periodo: periodoSelecionado
-                //     })
-                // });
-                // const { preferenceId } = await resp.json();
-                // const mp = new MercadoPago('APP_USR-03de60a7-6469-42bb-84a3-3262c42b932d'); // produção
-                // mp.checkout({ preference: { id: preferenceId }, render: { container: '#payment-brick_container', label: 'Assinar' } });
-                //
-                // ─── MODO TESTE (temporário) ───
-                const mp = new MercadoPago('APP_USR-03de60a7-6469-42bb-84a3-3262c42b932d'); // produção
-                // const mp = new MercadoPago('TEST-32fb4195-f0bc-4bc1-b91f-479813c423a8'); // teste
-                mp.bricks().create("payment", "payment-brick_container", {
-                    initialization: {
-                        amount: valor,
-                        payer: { email: auth.currentUser?.email || "cliente@exemplo.com" }
-                    },
-                    customization: {
-                        visual: { hideFormTitle: false, style: { theme: 'default' } },
-                        paymentMethods: { creditCard: "all", debitCard: "all", ticket: "all", bankTransfer: "all", atm: "all" }
-                    },
-                    callbacks: {
-                        onSubmit: async ({ formData }) => {
-                            // Em produção, isso será tratado pelo webhook da Cloud Function
-                            // Por ora (modo teste), marca como ativo diretamente
-                            if (auth.currentUser) {
-                                const userRef = doc(db, "saloes", auth.currentUser.uid);
-                                await updateDoc(userRef, {
-                                    status: 'ativo',
-                                    plano: planoSelecionado,
-                                    periodo: periodoSelecionado,
-                                    assinaturaAtivaEm: Timestamp.now()
-                                });
-                                showToast("✅ Assinatura ativada! Bem-vindo ao " + planoConfig.nome);
-                                setTimeout(() => {
-                                    carregarDadosPerfil();
-                                    navegarParaPagina('page-home', document.querySelector('.nav-item'));
-                                }, 2000);
-                            }
-                        },
-                        onError: (error) => {
-                            console.error("Erro MP:", error);
-                            showToast("Erro no pagamento. Tente novamente.", true);
-                        }
-                    }
+                // ─── MODO PRODUÇÃO ───
+                const resp = await fetch('https://mercadopago-webhook-864321164154.southamerica-east1.run.app/criarPreferencia', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        salonId: auth.currentUser.uid,
+                        plano: planoSelecionado,
+                        periodo: periodoSelecionado
+                    })
+                });
+                if (!resp.ok) throw new Error('Erro ao criar preferência: ' + resp.status);
+                const { preferenceId } = await resp.json();
+                const mp = new MercadoPago('APP_USR-03de60a7-6469-42bb-84a3-3262c42b932d');
+                mp.checkout({
+                    preference: { id: preferenceId },
+                    render: { container: '#payment-brick_container', label: 'Assinar agora' }
                 });
                 mpRendered = true;
             } catch (err) {
