@@ -1233,7 +1233,7 @@
     <div id="trial-banner">
         <i class="fa-regular fa-clock"></i>
         <span class="trial-txt" id="trial-banner-texto">Seu teste expira em breve! Assine e continue agendando.</span>
-        <button class="trial-assinar-btn" onclick="window.open('https://wa.me/5594984165220?text=Quero+assinar+o+CorteZap+Cloud', '_blank')">Assinar agora</button>
+        <button class="trial-assinar-btn" onclick="navegarParaPagina('page-pay', null)">Assinar agora</button>
     </div>
     
     <div id="toast" class="toast-message"></div>
@@ -1375,7 +1375,7 @@
                 <p style="color:#f0c040; font-size:0.8rem; font-weight:bold;">✨ Exclusivo Plano Premium</p>
                 <p style="color:#aaa; font-size:0.75rem;">A partir de R$ 99,90/mês</p>
             </div>
-            <button onclick="window.open('https://wa.me/5594984165220?text=Quero+fazer+upgrade+para+o+Plano+Premium+do+CorteZap+Cloud', '_blank')" 
+            <button onclick="navegarParaPagina('page-pay', null)" 
                 style="width:100%; background:linear-gradient(135deg,#d4af37,#f0c040); color:#111; border:none; border-radius:12px; padding:14px; font-weight:bold; font-size:0.95rem; cursor:pointer; margin-bottom:10px;">
                 ⚡ Fazer Upgrade Agora
             </button>
@@ -1456,7 +1456,7 @@
                 <p style="font-size:0.8rem; color:#888; margin-bottom:4px;">Plano Básico (autônomo)</p>
                 <p style="font-size:1.5rem; font-weight:bold; color:#922b21;">R$ 39,90<span style="font-size:0.85rem; font-weight:normal;">/mês</span></p>
             </div>
-            <button id="btn-assinar-agora" onclick="window.open('https://wa.me/5594984165220?text=Quero+assinar+o+CorteZap+Cloud+por+R$+39,90', '_blank')"
+            <button id="btn-assinar-agora" onclick="navegarParaPagina('page-pay', null)"
                 style="width:100%; background:linear-gradient(135deg,#922b21,#c0392b); color:white; border:none; border-radius:12px; padding:14px; font-weight:bold; font-size:0.95rem; cursor:pointer; margin-bottom:10px;">
                 ⚡ Ativar Assinatura Agora
             </button>
@@ -1470,7 +1470,7 @@
     <!-- Barra de bloqueio suave (dia 16+) -->
     <div id="barra-bloqueio" style="display:none; position:fixed; top:0; left:0; right:0; z-index:9998; background:linear-gradient(135deg,#922b21,#c0392b); color:white; text-align:center; padding:12px 15px; font-size:0.85rem; font-weight:bold; box-shadow:0 3px 15px rgba(0,0,0,0.4);">
         🔒 Seu período de testes acabou. Ative sua assinatura por R$ 39,90/mês para continuar agendando.
-        <button onclick="window.open('https://wa.me/5594984165220?text=Quero+assinar+o+CorteZap+Cloud+por+R$+39,90', '_blank')"
+        <button onclick="navegarParaPagina('page-pay', null)"
             style="background:white; color:#922b21; border:none; border-radius:20px; padding:4px 14px; font-size:0.8rem; font-weight:bold; cursor:pointer; margin-left:10px;">
             ⚡ Ativar agora
         </button>
@@ -1534,7 +1534,7 @@
                 <p style="font-weight:bold; font-size:0.95rem; margin-bottom:6px;">Seu teste está quase acabando!</p>
                 <p id="card-trial-stats" style="font-size:0.82rem; opacity:0.9; margin-bottom:12px;">Nos últimos 15 dias o CorteZap ajudou você a gerenciar <strong id="trial-faturamento-total">R$ 0,00</strong> em serviços.</p>
                 <p style="font-size:0.78rem; opacity:0.85; margin-bottom:12px;">Mantenha sua agenda funcionando por apenas <strong>R$ 1,33 por dia</strong> (R$ 39,90/mês).</p>
-                <button onclick="window.open('https://wa.me/5594984165220?text=Quero+assinar+o+CorteZap+Cloud', '_blank')"
+                <button onclick="navegarParaPagina('page-pay', null)"
                     style="background:white; color:#1a472a; border:none; border-radius:20px; padding:8px 20px; font-weight:bold; cursor:pointer; font-size:0.85rem;">
                     ⚡ Continuar por R$ 39,90/mês
                 </button>
@@ -1696,7 +1696,7 @@
                     <i class="fas fa-lock" style="font-size:2rem; color:#d4af37; margin-bottom:10px;"></i>
                     <p style="color:white; font-weight:bold; margin-bottom:8px;">Recurso Premium</p>
                     <p style="color:#ccc; font-size:0.8rem; margin-bottom:15px;">Gráfico por profissional e gestão de equipe disponíveis no Plano Premium</p>
-                    <button onclick="window.open('https://wa.me/5594984165220?text=Quero+fazer+upgrade+para+o+Plano+Premium+do+CorteZap+Cloud', '_blank')" style="background:linear-gradient(135deg,#d4af37,#f0c040); color:#111; border:none; border-radius:8px; padding:8px 16px; font-weight:bold; cursor:pointer;">⚡ Fazer Upgrade</button>
+                    <button onclick="navegarParaPagina('page-pay', null)" style="background:linear-gradient(135deg,#d4af37,#f0c040); color:#111; border:none; border-radius:8px; padding:8px 16px; font-weight:bold; cursor:pointer;">⚡ Fazer Upgrade</button>
                 </div>
             </div>
         </section>
@@ -1744,7 +1744,7 @@
                     <i class="fas fa-lock" style="font-size:2.5rem; color:#d4af37; margin-bottom:12px;"></i>
                     <p style="color:white; font-weight:bold; font-size:1rem; margin-bottom:8px;">Recurso Exclusivo Premium</p>
                     <p style="color:#bbb; font-size:0.82rem; margin-bottom:20px;">No Plano Básico, apenas você (autônomo) usa o sistema. Faça upgrade para gerenciar toda sua equipe.</p>
-                    <button onclick="window.open('https://wa.me/5594984165220?text=Quero+fazer+upgrade+para+o+Plano+Premium+do+CorteZap+Cloud', '_blank')" 
+                    <button onclick="navegarParaPagina('page-pay', null)" 
                         style="background:linear-gradient(135deg,#d4af37,#f0c040); color:#111; border:none; border-radius:10px; padding:12px 24px; font-weight:bold; font-size:0.9rem; cursor:pointer;">
                         ⚡ Fazer Upgrade — R$ 99,90/mês
                     </button>
@@ -1917,7 +1917,7 @@
                     <label>Plano Atual</label>
                     <div style="display:flex; gap:10px; align-items:center;">
                         <input type="text" id="perfil-plano" class="input-padrao" readonly style="background: #222; color: var(--gold); flex:1;">
-                        <button onclick="window.open('https://wa.me/5594984165220?text=Olá!+Quero+fazer+upgrade+para+o+Plano+Premium+do+CorteZap+Cloud', '_blank')" 
+                        <button onclick="navegarParaPagina('page-pay', null)" 
                             style="background: linear-gradient(135deg, #d4af37, #f0c040); color: #111; border: none; border-radius: 10px; padding: 10px 14px; font-weight: bold; font-size: 0.8rem; cursor: pointer; white-space: nowrap;">
                             ⚡ Fazer Upgrade
                         </button>
@@ -4527,22 +4527,57 @@
             mpRendered = false;
 
             try {
-                // ─── MODO PRODUÇÃO ───
-                const resp = await fetch('https://mercadopago-webhook-864321164154.southamerica-east1.run.app/criarPreferencia', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        salonId: auth.currentUser.uid,
-                        plano: planoSelecionado,
-                        periodo: periodoSelecionado
-                    })
-                });
-                if (!resp.ok) throw new Error('Erro ao criar preferência: ' + resp.status);
-                const { preferenceId } = await resp.json();
-                const mp = new MercadoPago('APP_USR-03de60a7-6469-42bb-84a3-3262c42b932d');
-                mp.checkout({
-                    preference: { id: preferenceId },
-                    render: { container: '#payment-brick_container', label: 'Assinar agora' }
+                // ─── MODO PRODUÇÃO: buscar preferenceId da Cloud Function ───
+                // Descomente quando tiver as credenciais de produção:
+                //
+                // const resp = await fetch('https://SUA_REGION-SEU_PROJETO.cloudfunctions.net/criarPreferencia', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({
+                //         salonId: auth.currentUser.uid,
+                //         plano: planoSelecionado,
+                //         periodo: periodoSelecionado
+                //     })
+                // });
+                // const { preferenceId } = await resp.json();
+                // const mp = new MercadoPago('SUA_PUBLIC_KEY_PRODUCAO');
+                // mp.checkout({ preference: { id: preferenceId }, render: { container: '#payment-brick_container', label: 'Assinar' } });
+                //
+                // ─── MODO TESTE (temporário) ───
+                const mp = new MercadoPago('TEST-32fb4195-f0bc-4bc1-b91f-479813c423a8');
+                mp.bricks().create("payment", "payment-brick_container", {
+                    initialization: {
+                        amount: valor,
+                        payer: { email: auth.currentUser?.email || "cliente@exemplo.com" }
+                    },
+                    customization: {
+                        visual: { hideFormTitle: false, style: { theme: 'default' } },
+                        paymentMethods: { creditCard: "all", debitCard: "all", ticket: "all", bankTransfer: "all", atm: "all" }
+                    },
+                    callbacks: {
+                        onSubmit: async ({ formData }) => {
+                            // Em produção, isso será tratado pelo webhook da Cloud Function
+                            // Por ora (modo teste), marca como ativo diretamente
+                            if (auth.currentUser) {
+                                const userRef = doc(db, "saloes", auth.currentUser.uid);
+                                await updateDoc(userRef, {
+                                    status: 'ativo',
+                                    plano: planoSelecionado,
+                                    periodo: periodoSelecionado,
+                                    assinaturaAtivaEm: Timestamp.now()
+                                });
+                                showToast("✅ Assinatura ativada! Bem-vindo ao " + planoConfig.nome);
+                                setTimeout(() => {
+                                    carregarDadosPerfil();
+                                    navegarParaPagina('page-home', document.querySelector('.nav-item'));
+                                }, 2000);
+                            }
+                        },
+                        onError: (error) => {
+                            console.error("Erro MP:", error);
+                            showToast("Erro no pagamento. Tente novamente.", true);
+                        }
+                    }
                 });
                 mpRendered = true;
             } catch (err) {
