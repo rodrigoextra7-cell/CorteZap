@@ -37,6 +37,36 @@
             font-weight: 600;
             font-size: 0.8rem;
         }
+        .faq-grupo { margin-top: 14px; }
+        .faq-grupo h4 { margin-bottom: 8px; }
+        .faq-item {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 10px 0;
+        }
+        .faq-item summary {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.86rem;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-item summary::-webkit-details-marker { display: none; }
+        .faq-item summary::after {
+            content: '+';
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+        .faq-item[open] summary::after { content: '−'; }
+        .faq-item p {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
         .input-padrao {
             width: 100%;
             padding: 14px;
@@ -691,6 +721,34 @@
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); overflow-x: hidden; padding-bottom: 70px; color: var(--text); transition: all 0.3s ease; }
+
+        /* Em telas largas (desktop), trava a largura no tamanho de um celular
+           e centraliza — sem isso, grids e cards esticam de forma exagerada. */
+        @media (min-width: 600px) {
+            body {
+                display: flex;
+                justify-content: center;
+                background: #0d0d0d;
+            }
+            #app-main, #screen-auth {
+                max-width: 480px;
+                width: 100%;
+                min-height: 100vh;
+                box-shadow: 0 0 40px rgba(0,0,0,0.5);
+                position: relative;
+            }
+            .nav {
+                max-width: 480px;
+                left: 50% !important;
+                transform: translateX(-50%);
+            }
+            #barra-bloqueio {
+                max-width: 480px;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%);
+            }
+        }
         .screen { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -1424,6 +1482,40 @@
             <button onclick="fecharModalWorker()" style="margin-top: 10px; background: #ccc; padding: 10px; border-radius: 8px;">Cancelar</button>
         </div>
     </div>
+
+    <div id="modal-editar-remuneracao" class="modal">
+        <div class="modal-content">
+            <h3>Remuneração do Profissional</h3>
+            <input type="hidden" id="edit-remuneracao-id">
+            <label style="font-size:0.78rem; color:#888; display:block; margin:10px 0 4px;">Tipo de remuneração</label>
+            <select id="edit-tipo-remuneracao" class="input-padrao" onchange="atualizarCamposRemuneracaoEdit()">
+                <option value="parceiro">Salão-Parceiro (comissão %)</option>
+                <option value="clt">CLT (salário fixo + comissão)</option>
+                <option value="aluguel">Aluguel de Cadeira</option>
+            </select>
+
+            <div id="edit-campos-remuneracao-parceiro" class="edit-campos-remuneracao">
+                <input type="number" id="edit-comissao-parceiro" class="input-padrao" placeholder="Comissão (%) — ex: 50" min="0" max="100" style="margin-top:8px;">
+            </div>
+
+            <div id="edit-campos-remuneracao-clt" class="edit-campos-remuneracao" style="display:none;">
+                <input type="number" id="edit-salario-base" class="input-padrao" placeholder="Salário base mensal (R$)" min="0" step="0.01" style="margin-top:8px;">
+                <input type="number" id="edit-comissao-clt" class="input-padrao" placeholder="Comissão (%) — ex: 15" min="0" max="100" style="margin-top:8px;">
+            </div>
+
+            <div id="edit-campos-remuneracao-aluguel" class="edit-campos-remuneracao" style="display:none;">
+                <input type="number" id="edit-valor-aluguel" class="input-padrao" placeholder="Valor do aluguel (R$)" min="0" step="0.01" style="margin-top:8px;">
+                <select id="edit-periodicidade-aluguel" class="input-padrao" style="margin-top:8px;" onchange="atualizarLabelVencimento('edit')">
+                    <option value="semanal">Semanal</option>
+                    <option value="mensal">Mensal</option>
+                </select>
+                <select id="edit-dia-vencimento" class="input-padrao" style="margin-top:8px;"></select>
+            </div>
+
+            <button class="btn" onclick="salvarRemuneracaoEditada()" style="background: var(--secondary); margin-top:12px;">Salvar</button>
+            <button onclick="fecharModalRemuneracao()" style="margin-top: 10px; background: #ccc; padding: 10px; border-radius: 8px;">Cancelar</button>
+        </div>
+    </div>
     
     <div id="screen-auth" class="screen active">
         <div class="card" style="width: 90%; max-width: 380px; text-align: center; padding: 40px 25px;">
@@ -1469,7 +1561,7 @@
 
     <!-- Barra de bloqueio suave (dia 16+) -->
     <div id="barra-bloqueio" style="display:none; position:fixed; top:0; left:0; right:0; z-index:9998; background:linear-gradient(135deg,#922b21,#c0392b); color:white; text-align:center; padding:12px 15px; font-size:0.85rem; font-weight:bold; box-shadow:0 3px 15px rgba(0,0,0,0.4);">
-        🔒 Seu período de testes acabou. Ative sua assinatura por R$ 39,90/mês para continuar agendando.
+        <span id="texto-barra-bloqueio">🔒 Seu período de testes acabou. Ative sua assinatura para continuar agendando.</span>
         <button onclick="navegarParaPagina('page-pay', null)"
             style="background:white; color:#922b21; border:none; border-radius:20px; padding:4px 14px; font-size:0.8rem; font-weight:bold; cursor:pointer; margin-left:10px;">
             ⚡ Ativar agora
@@ -1699,6 +1791,52 @@
                     <button onclick="navegarParaPagina('page-pay', null)" style="background:linear-gradient(135deg,#d4af37,#f0c040); color:#111; border:none; border-radius:8px; padding:8px 16px; font-weight:bold; cursor:pointer;">⚡ Fazer Upgrade</button>
                 </div>
             </div>
+
+            <div id="container-remuneracao-premium" style="position:relative;">
+                <div class="card" id="bloco-folha-pagamento">
+                    <h4><i class="fas fa-file-invoice-dollar"></i> Folha de Pagamento (CLT)</h4>
+                    <div style="display:flex; gap:8px; align-items:center; margin:10px 0;">
+                        <input type="month" id="folha-mes-input" class="input-padrao" style="flex:1;">
+                        <button class="btn-icon-acao" onclick="carregarFolhaPagamento()" title="Gerar"><i class="fas fa-sync"></i></button>
+                        <button class="btn-icon-acao" onclick="exportarFolhaPagamentoCSV()" title="Exportar CSV"><i class="fas fa-file-export"></i></button>
+                    </div>
+                    <div id="lista-folha-pagamento"><div class="empty-state">Escolha o mês e toque em atualizar.</div></div>
+                </div>
+
+                <div class="card" id="bloco-cobrancas-aluguel">
+                    <h4><i class="fas fa-key"></i> Cobranças de Aluguel de Cadeira</h4>
+                    <div id="lista-cobrancas-aluguel"><div class="empty-state">Nenhuma cobrança encontrada.</div></div>
+                </div>
+
+                <div class="card" id="bloco-cobrar-cliente">
+                    <h4><i class="fas fa-link"></i> Cobrar Cliente (Link de Pagamento)</h4>
+                    <p style="font-size:0.75rem; color:#888; margin-bottom:10px;">
+                        Gere um link de pagamento (Pix/cartão) pra mandar direto pro cliente.
+                    </p>
+                    <input type="text" id="cobranca-cliente-nome" class="input-padrao" placeholder="Nome do cliente (opcional)" style="margin-bottom:8px;">
+                    <input type="text" id="cobranca-descricao" class="input-padrao" placeholder="Descrição (ex: Corte + Barba)" style="margin-bottom:8px;">
+                    <input type="number" id="cobranca-valor" class="input-padrao" placeholder="Valor (R$)" min="0.01" step="0.01" style="margin-bottom:10px;">
+                    <button class="btn" onclick="gerarCobrancaCliente()" style="background: var(--secondary);">
+                        <i class="fas fa-link"></i> Gerar Link de Pagamento
+                    </button>
+                    <div id="resultado-cobranca-cliente" style="display:none; margin-top:12px; padding:12px; background:rgba(0,0,0,0.15); border-radius:10px;">
+                        <p style="font-size:0.78rem; color:#888; margin-bottom:8px;">Link gerado:</p>
+                        <p id="link-cobranca-gerado" style="font-size:0.78rem; word-break:break-all; color:var(--primary); margin-bottom:10px;"></p>
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="copiarLinkCobranca()" style="flex:1; background:#555; color:#fff; border:none; border-radius:8px; padding:8px; font-size:0.78rem; cursor:pointer;"><i class="fas fa-copy"></i> Copiar</button>
+                            <button onclick="compartilharLinkCobrancaWhatsApp()" style="flex:1; background:#25d366; color:#fff; border:none; border-radius:8px; padding:8px; font-size:0.78rem; cursor:pointer;"><i class="fab fa-whatsapp"></i> Enviar</button>
+                        </div>
+                    </div>
+                    <div id="lista-cobrancas-clientes" style="margin-top:14px;"></div>
+                </div>
+
+                <div id="overlay-remuneracao" style="display:none; position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(15,15,30,0.92); border-radius:12px; align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:20px; z-index:5;">
+                    <i class="fas fa-lock" style="font-size:2rem; color:#d4af37; margin-bottom:10px;"></i>
+                    <p style="color:white; font-weight:bold; margin-bottom:8px;">Recurso Premium</p>
+                    <p style="color:#ccc; font-size:0.8rem; margin-bottom:15px;">Folha de pagamento, cobrança de aluguel e link de pagamento pro cliente disponíveis no Plano Premium.</p>
+                    <button onclick="navegarParaPagina('page-pay', null)" style="background:linear-gradient(135deg,#d4af37,#f0c040); color:#111; border:none; border-radius:8px; padding:8px 16px; font-weight:bold; cursor:pointer;">⚡ Fazer Upgrade</button>
+                </div>
+            </div>
         </section>
         
         <section id="page-pay" class="screen">
@@ -1743,7 +1881,33 @@
                 <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Cadastre quem trabalha no seu salão.</p>
                 <input type="text" id="worker-name" placeholder="Nome do Profissional">
                 <input type="text" id="worker-skill" placeholder="Especialidade (ex: Barbeiro)">
-                <button class="btn" onclick="salvarProfissional()" style="background: var(--secondary);">
+
+                <label style="font-size:0.78rem; color:#888; display:block; margin:10px 0 4px;">Tipo de remuneração</label>
+                <select id="worker-tipo-remuneracao" class="input-padrao" onchange="atualizarCamposRemuneracao()">
+                    <option value="parceiro">Salão-Parceiro (comissão %)</option>
+                    <option value="clt">CLT (salário fixo + comissão)</option>
+                    <option value="aluguel">Aluguel de Cadeira</option>
+                </select>
+
+                <div id="campos-remuneracao-parceiro" class="campos-remuneracao">
+                    <input type="number" id="worker-comissao-parceiro" class="input-padrao" placeholder="Comissão (%) — ex: 50" min="0" max="100" style="margin-top:8px;">
+                </div>
+
+                <div id="campos-remuneracao-clt" class="campos-remuneracao" style="display:none;">
+                    <input type="number" id="worker-salario-base" class="input-padrao" placeholder="Salário base mensal (R$)" min="0" step="0.01" style="margin-top:8px;">
+                    <input type="number" id="worker-comissao-clt" class="input-padrao" placeholder="Comissão (%) — ex: 15" min="0" max="100" style="margin-top:8px;">
+                </div>
+
+                <div id="campos-remuneracao-aluguel" class="campos-remuneracao" style="display:none;">
+                    <input type="number" id="worker-valor-aluguel" class="input-padrao" placeholder="Valor do aluguel (R$)" min="0" step="0.01" style="margin-top:8px;">
+                    <select id="worker-periodicidade-aluguel" class="input-padrao" style="margin-top:8px;" onchange="atualizarLabelVencimento('worker')">
+                        <option value="semanal">Semanal</option>
+                        <option value="mensal">Mensal</option>
+                    </select>
+                    <select id="worker-dia-vencimento" class="input-padrao" style="margin-top:8px;"></select>
+                </div>
+
+                <button class="btn" onclick="salvarProfissional()" style="background: var(--secondary); margin-top:10px;">
                     <i class="fas fa-plus"></i> Adicionar à Equipe
                 </button>
                 <div id="list-workers-config" style="margin-top: 15px;"></div>
@@ -1764,6 +1928,7 @@
                 <input type="text" id="service-name-input" placeholder="Nome do Serviço (ex: Corte Degradê)">
                 <input type="number" id="service-price-input" placeholder="Preço (R$) Ex: 35.00">
                 <input type="number" id="service-duration-input" placeholder="Duração (minutos) Ex: 30">
+                <input type="number" id="service-cost-input" placeholder="Custo de produto (R$) — opcional, ex: 5.00" min="0" step="0.01">
                 <button class="btn" onclick="salvarServico()" style="background: var(--secondary);">
                     <i class="fas fa-save"></i> Salvar Serviço
                 </button>
@@ -1883,7 +2048,7 @@
                     <span id="label-temas-premium" style="display:none; color:#d4af37; font-size:0.72rem;"> · 🔒 8 cores exclusivas Premium</span>
                 </p>
 
-                <div id="grade-temas" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;"></div>
+                <div id="grade-temas" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(64px, 84px)); justify-content:center; gap:8px; max-width:400px; margin:0 auto;"></div>
             </div>
 
             <div class="card-barber">
@@ -1918,6 +2083,18 @@
                     <p style="font-size:0.72rem; color:#888; margin-top:4px;">
                         Define o aviso que o cliente recebe ao confirmar o agendamento, e as opções
                         disponíveis quando ele não comparecer.
+                    </p>
+                </div>
+
+                <div class="form-group" style="margin-top:12px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                        <input type="checkbox" id="perfil-descontar-custo-produto" style="width:auto;">
+                        💵 Descontar custo de produto antes de calcular a comissão
+                    </label>
+                    <p style="font-size:0.72rem; color:#888; margin-top:4px;">
+                        Se ligado, a comissão do profissional (Salão-Parceiro/CLT) é calculada sobre
+                        o valor do serviço menos o custo de produto cadastrado nele. Se desligado,
+                        a comissão é sobre o valor cheio do serviço.
                     </p>
                 </div>
 
@@ -1958,9 +2135,42 @@
                             <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Mensagem WhatsApp sem marca (5 modelos)</td><td style="text-align:center; color:#e74c3c;">❌</td><td style="text-align:center;">✅</td></tr>
                             <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Exportar despesas em CSV</td><td style="text-align:center; color:#e74c3c;">❌</td><td style="text-align:center;">✅</td></tr>
                             <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Histórico de movimentações de estoque</td><td style="text-align:center; color:#e74c3c;">❌</td><td style="text-align:center;">✅</td></tr>
-                            <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Link de pagamento automático (Mercado Pago)</td><td style="text-align:center; color:#888;">—</td><td style="text-align:center; color:#888; font-size:0.7rem;">Em breve</td></tr>
+                            <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Tipos de remuneração por profissional (Parceiro/CLT/Aluguel)</td><td style="text-align:center; color:#e74c3c;">❌</td><td style="text-align:center;">✅</td></tr>
+                            <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Cálculo automático de comissão</td><td style="text-align:center; color:#e74c3c;">❌</td><td style="text-align:center;">✅</td></tr>
+                            <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Folha de pagamento (CLT) com exportação</td><td style="text-align:center; color:#e74c3c;">❌</td><td style="text-align:center;">✅</td></tr>
+                            <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Cobrança automática de aluguel de cadeira</td><td style="text-align:center; color:#e74c3c;">❌</td><td style="text-align:center;">✅</td></tr>
+                            <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Link de pagamento automático (Mercado Pago)</td><td style="text-align:center; color:#888;">—</td><td style="text-align:center;">✅</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Card de Conexão com o Mercado Pago (pra cobrar clientes finais) -->
+            <div class="card-barber" style="margin-top:15px; position:relative;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <i class="fas fa-link" style="font-size:1.3rem; color:var(--primary);"></i>
+                    <div>
+                        <h3 style="margin:0; font-size:1rem;">Conectar Mercado Pago</h3>
+                        <p style="margin:0; font-size:0.72rem; color:#888;">Pra gerar links de cobrança pros seus clientes finais</p>
+                    </div>
+                </div>
+                <p id="mp-conexao-status-texto" style="font-size:0.8rem; color:#888; margin-bottom:10px;">Verificando status da conexão...</p>
+                <button id="btn-mp-conectar" onclick="iniciarConexaoMercadoPago()"
+                    style="width:100%; background: linear-gradient(135deg, #009ee3, #00c3ff); color:#fff; border:none; border-radius:10px; padding:12px; font-weight:700; cursor:pointer; display:none;">
+                    <i class="fas fa-link"></i> Conectar minha conta Mercado Pago
+                </button>
+                <button id="btn-mp-desconectar" onclick="desconectarMercadoPago()"
+                    style="width:100%; background:transparent; border:1px solid #e74c3c; color:#e74c3c; border-radius:10px; padding:10px; font-weight:600; cursor:pointer; display:none; margin-top:8px;">
+                    Desconectar conta
+                </button>
+                <p style="font-size:0.68rem; color:#666; margin-top:8px;">
+                    O dinheiro cobrado dos seus clientes cai direto na sua própria conta do Mercado Pago — o CorteZap nunca fica com esse valor no meio do caminho.
+                </p>
+
+                <div id="overlay-mp-conexao-premium" style="display:none; position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(15,15,30,0.92); border-radius:12px; align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:20px; z-index:5;">
+                    <i class="fas fa-lock" style="font-size:1.6rem; color:#d4af37; margin-bottom:8px;"></i>
+                    <p style="color:white; font-weight:bold; margin-bottom:4px; font-size:0.9rem;">Recurso Premium</p>
+                    <p style="color:#ccc; font-size:0.75rem;">Cobrar clientes com link de pagamento é exclusivo do Plano Premium.</p>
                 </div>
             </div>
 
@@ -1985,6 +2195,12 @@
                 <p style="font-size:0.68rem; color:#666; text-align:center; margin-top:8px;">
                     Seg–Sex, 8h–18h · Usuários Premium têm prioridade no atendimento
                 </p>
+                <button onclick="navegarParaPagina('page-faq', null)"
+                    style="width:100%; background:transparent; color:var(--primary); border:1px solid var(--primary); border-radius:10px;
+                    padding:12px; font-size:0.9rem; font-weight:700; cursor:pointer; display:flex;
+                    align-items:center; justify-content:center; gap:8px; margin-top:10px;">
+                    <i class="fas fa-question-circle" style="font-size:1.1rem;"></i> Perguntas Frequentes / Ajuda
+                </button>
             </div>
 
             <!-- Expediente -->
@@ -2022,6 +2238,92 @@
                 <button onclick="salvarPerfil()" class="btn-acao" style="background: var(--primary); margin-top: 20px;">
                     <i class="fas fa-save"></i> SALVAR CONFIGURAÇÕES
                 </button>
+            </div>
+        </section>
+
+        <section id="page-faq" class="screen">
+            <div class="header-page">
+                <button onclick="navegarParaPagina('page-profile', document.getElementById('nav-profile'))" style="background:none; border:none; color:var(--primary); font-size:0.9rem; cursor:pointer; padding:10px 0;">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </button>
+                <h2><i class="fas fa-question-circle"></i> Perguntas Frequentes</h2>
+                <p style="color:#888; font-size:0.82rem; margin-bottom:14px;">Toque numa pergunta para ver a resposta.</p>
+            </div>
+
+            <div class="card faq-grupo">
+                <h4>💳 Assinatura e Planos</h4>
+                <details class="faq-item" data-video-id="" data-faq-id="plano-periodo-teste">
+                    <summary>Como funciona o período de teste?</summary>
+                    <p>Você tem 15 dias grátis com acesso completo ao CorteZap. Depois desse período, é preciso assinar um dos planos (Básico, Premium ou Premium Plus) para continuar agendando.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="plano-diferenca-planos">
+                    <summary>Qual a diferença entre os planos?</summary>
+                    <p>O <strong>Básico</strong> cobre o essencial pra um profissional só: agenda, despesas, estoque e depósito anti-furo. O <strong>Premium</strong> libera múltiplos profissionais, relatórios completos, gráfico por profissional e o módulo de remuneração (comissão, folha CLT, aluguel de cadeira). Veja a tabela comparativa completa na tela de planos.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="plano-trocar-plano">
+                    <summary>Como faço para trocar de plano?</summary>
+                    <p>Vá em <strong>Perfil → Plano Atual → Ver Planos</strong>, escolha o novo plano e complete o pagamento pelo Mercado Pago. A troca é aplicada assim que o pagamento é confirmado.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="plano-cancelar">
+                    <summary>Posso cancelar quando quiser?</summary>
+                    <p>Sim, não há fidelidade. Ao cancelar, seu acesso continua até o fim do período já pago.</p>
+                </details>
+            </div>
+
+            <div class="card faq-grupo">
+                <h4>👥 Equipe e Remuneração</h4>
+                <details class="faq-item" data-video-id="" data-faq-id="remun-parceiro">
+                    <summary>O que é o perfil "Salão-Parceiro"?</summary>
+                    <p>É o modelo mais comum no setor (Lei do Salão-Parceiro). O profissional atua como parceiro autônomo, sem salário fixo, recebendo uma <strong>comissão percentual</strong> sobre cada atendimento que ele realiza (ex: 50%).</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="remun-clt">
+                    <summary>O que é o perfil "CLT"?</summary>
+                    <p>Pra profissionais contratados formalmente. Eles têm um <strong>salário base mensal fixo</strong>, mais uma comissão (geralmente menor) sobre os atendimentos. O total do mês aparece na tela de Folha de Pagamento, em Relatórios.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="remun-aluguel">
+                    <summary>O que é o perfil "Aluguel de Cadeira"?</summary>
+                    <p>O profissional é independente: ele fica com 100% do que cobra dos clientes, e paga um valor fixo (semanal ou mensal) pelo uso do espaço/cadeira do salão. O CorteZap gera essa cobrança automaticamente na data combinada.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="remun-calculo-comissao">
+                    <summary>Como a comissão é calculada?</summary>
+                    <p>Quando você marca um atendimento como concluído, o app já calcula automaticamente quanto é do profissional e quanto fica pro salão, com base no tipo de remuneração cadastrado nele.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="remun-custo-produto">
+                    <summary>O que é "descontar custo de produto"?</summary>
+                    <p>Se um serviço usa produto (ex: tinta de cabelo), você pode cadastrar o custo desse produto no serviço. Ligando essa opção no Perfil, a comissão do profissional passa a ser calculada sobre o valor do serviço <strong>menos</strong> o custo do produto usado — assim o salão não "paga" comissão sobre o próprio custo.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="remun-folha-pagamento">
+                    <summary>Onde vejo a folha de pagamento dos profissionais CLT?</summary>
+                    <p>Em <strong>Relatórios → Folha de Pagamento (CLT)</strong>. Escolha o mês, toque em atualizar, e o app soma o salário base de cada profissional com as comissões acumuladas naquele mês. Dá pra exportar em CSV pra levar ao contador.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="remun-cobranca-aluguel">
+                    <summary>Como funciona a cobrança do aluguel de cadeira?</summary>
+                    <p>O sistema verifica todo dia se algum profissional de aluguel tem vencimento naquela data e gera a cobrança sozinho — você só precisa marcar como "pago" quando receber. Acompanhe em <strong>Relatórios → Cobranças de Aluguel de Cadeira</strong>.</p>
+                </details>
+            </div>
+
+            <div class="card faq-grupo">
+                <h4>📅 Agendamentos e Depósito</h4>
+                <details class="faq-item" data-video-id="" data-faq-id="agenda-deposito-antifuro">
+                    <summary>O que é o depósito anti-furo?</summary>
+                    <p>É um valor cobrado via Pix na hora de agendar, pra reduzir faltas ("furos"). Se o cliente não comparecer, você define a política: reembolsar ou reter o valor.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="agenda-reagendar">
+                    <summary>Como reagendo um cliente?</summary>
+                    <p>Na tela de Início, toque no agendamento e escolha a opção de reagendar. O histórico do cliente continua o mesmo.</p>
+                </details>
+            </div>
+
+            <div class="card faq-grupo">
+                <h4>⚙️ Geral</h4>
+                <details class="faq-item" data-video-id="" data-faq-id="geral-temas">
+                    <summary>Posso mudar as cores/tema do app?</summary>
+                    <p>Sim, em <strong>Perfil → Aparência</strong>. O plano Básico tem 4 temas disponíveis; o Premium libera todos.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="geral-nao-encontrei">
+                    <summary>Não encontrei a resposta que eu precisava. E agora?</summary>
+                    <p>Fale direto com a gente pelo WhatsApp — o botão fica na tela de planos ("Fale comigo no WhatsApp") ou você pode nos chamar a qualquer momento.</p>
+                </details>
             </div>
         </section>
         
@@ -2071,6 +2373,7 @@
         let unsubscribeStatus = null;
         let currentUserId = null;
         let profissionalSelecionado = null;
+        let profissionalIdSelecionado = null;
         let revenueChart = null;
         let periodoAtual = 'semana';
         let profissionalParaFoto = null;
@@ -2246,6 +2549,14 @@
             // 8. Modelos de mensagem WhatsApp — Premium Plus sem rodapé de marca
             const optPremium = document.getElementById('opt-premium');
             if (optPremium) optPremium.disabled = !isPremium;
+
+            // 9. Folha de Pagamento (CLT) e Cobranças de Aluguel (Premium)
+            const overlayRemuneracao = document.getElementById('overlay-remuneracao');
+            if (overlayRemuneracao) overlayRemuneracao.style.display = isPremium ? 'none' : 'flex';
+
+            // 10. Conectar Mercado Pago (Premium — é o que habilita cobrar clientes)
+            const overlayMpConexao = document.getElementById('overlay-mp-conexao-premium');
+            if (overlayMpConexao) overlayMpConexao.style.display = isPremium ? 'none' : 'flex';
         }
 
         window.clicarFiltroAnoPremium = function(btn) {
@@ -2605,13 +2916,17 @@
             
             const servicosSelecionados = [];
             let precoTotal = 0;
+            let custoProdutoTotal = 0;
             document.querySelectorAll('.service-check:checked').forEach(cb => {
                 const nome = cb.getAttribute('data-name');
                 const preco = parseFloat(cb.getAttribute('data-price')) || 0;
+                const custo = parseFloat(cb.getAttribute('data-custo')) || 0;
                 if (nome) servicosSelecionados.push(nome);
                 precoTotal += preco;
+                custoProdutoTotal += custo;
             });
             precoTotal = Math.round(precoTotal * 100) / 100; // arredondar centavos
+            custoProdutoTotal = Math.round(custoProdutoTotal * 100) / 100;
             
             if (!nome) { showToast("Digite o nome do cliente", true); return; }
             if (!telefone) { showToast("Digite o WhatsApp do cliente", true); return; }
@@ -2624,6 +2939,7 @@
                 // Plano básico: usa nome do salão como profissional
                 const nomeSalao = document.getElementById('nome-salao-topo') ? document.getElementById('nome-salao-topo').innerText : 'Profissional';
                 profissionalSelecionado = nomeSalao;
+                profissionalIdSelecionado = null; // sem cadastro em funcionarios, não há remuneração pra calcular
             }
             if (servicosSelecionados.length === 0) { showToast("Selecione pelo menos um serviço", true); return; }
             if (!dataHoraFull) { showToast("Selecione uma data e horário", true); return; }
@@ -2692,9 +3008,11 @@
                     cliente: nome, status: 'pendente', 
                     telefone: telefone,
                     profissional: profissionalSelecionado,
+                    profissionalId: profissionalIdSelecionado || null,
                     servicos: servicosSelecionados,
                     servicosStr: servicosStr,
                     precoTotal: Number(precoTotal) || 0,
+                    custoProdutoTotal: Number(custoProdutoTotal) || 0,
                     modeloMensagem: modelo,
                     data: dataApenas,
                     horario: horaFormatada,
@@ -2712,6 +3030,7 @@
                 document.getElementById('cust-name').value = '';
                 document.getElementById('cust-phone').value = '';
                 profissionalSelecionado = null;
+                profissionalIdSelecionado = null;
                 document.querySelectorAll('.worker-card').forEach(c => c.classList.remove('selected'));
                 document.querySelectorAll('.service-check').forEach(cb => cb.checked = false);
                 document.getElementById('total-price').innerText = '0,00';
@@ -3074,10 +3393,48 @@
             if (!agendamentoSelecionado) return;
             if (confirm(`Marcar "${agendamentoSelecionado.cliente}" como concluído (pago)?`)) {
                 try {
-                    await updateDoc(doc(db, "agendamentos", agendamentoSelecionado.id), {
+                    const dadosConclusao = {
                         status: 'pago',
                         concluidoEm: Timestamp.now()
-                    });
+                    };
+
+                    // Calcula a comissão do profissional, se ele estiver cadastrado
+                    // com um profissionalId (agendamentos antigos, sem esse campo,
+                    // ficam sem cálculo — o valor total continua contabilizado normalmente).
+                    if (agendamentoSelecionado.profissionalId) {
+                        try {
+                            const salaoSnap = await getDoc(doc(db, 'saloes', auth.currentUser.uid));
+                            const descontarCustoProduto = salaoSnap.exists() ? (salaoSnap.data().descontarCustoProduto || false) : false;
+
+                            const profSnap = await getDoc(doc(db, 'funcionarios', agendamentoSelecionado.profissionalId));
+                            if (profSnap.exists()) {
+                                const remuneracao = profSnap.data().remuneracao || { tipo: 'parceiro', comissaoPercentual: 0 };
+                                const precoTotal = agendamentoSelecionado.precoTotal || 0;
+                                const custoProdutoTotal = agendamentoSelecionado.custoProdutoTotal || 0;
+
+                                if (remuneracao.tipo === 'aluguel') {
+                                    // Profissional de aluguel de cadeira fica com 100% do valor;
+                                    // o aluguel é cobrado à parte, não por atendimento.
+                                    dadosConclusao.comissaoProfissional = precoTotal;
+                                    dadosConclusao.valorSalao = 0;
+                                } else {
+                                    // parceiro ou clt: comissão percentual sobre o valor total,
+                                    // descontando o custo de produto se o salão optou por isso
+                                    const baseCalculo = descontarCustoProduto ? Math.max(0, precoTotal - custoProdutoTotal) : precoTotal;
+                                    const pct = (remuneracao.comissaoPercentual || 0) / 100;
+                                    const comissao = Math.round(baseCalculo * pct * 100) / 100;
+                                    dadosConclusao.comissaoProfissional = comissao;
+                                    dadosConclusao.valorSalao = Math.round((precoTotal - comissao) * 100) / 100;
+                                }
+                                dadosConclusao.tipoRemuneracaoNoMomento = remuneracao.tipo;
+                                dadosConclusao.custoProdutoDescontado = descontarCustoProduto;
+                            }
+                        } catch (e) {
+                            console.error('Erro ao calcular comissão (agendamento salvo normalmente mesmo assim):', e);
+                        }
+                    }
+
+                    await updateDoc(doc(db, "agendamentos", agendamentoSelecionado.id), dadosConclusao);
                     showToast("✅ Atendimento concluído e salvo no relatório!");
                     fecharModalAcoes();
                     await carregarAgendamentos();
@@ -3355,6 +3712,7 @@
                 linkMapa: document.getElementById('perfil-mapa').value.trim(),
                 chavePix: document.getElementById('perfil-pix').value.trim(),
                 politicaDeposito: document.getElementById('perfil-politica-deposito').value,
+                descontarCustoProduto: document.getElementById('perfil-descontar-custo-produto').checked,
                 abertura: document.getElementById('perfil-abertura').value || "08:00",
                 fechamento: document.getElementById('perfil-fechamento').value || "19:00",
                 almocoIni: document.getElementById('perfil-almoco-ini').value || "",
@@ -3420,7 +3778,10 @@
                 if (!isPago && statusSalon === 'trial') {
                     if (trialExpirado) {
                         // Bloqueio suave: vê o app mas não pode agendar
-                        if (barraBloqueio) barraBloqueio.style.display = 'block';
+                        if (barraBloqueio) {
+                            document.getElementById('texto-barra-bloqueio').innerText = '🔒 Seu período de testes acabou. Ative sua assinatura para continuar agendando.';
+                            barraBloqueio.style.display = 'block';
+                        }
                         if (appMain) appMain.style.paddingTop = '55px';
                         acessoLiberadoGlobal = false;
                     } else if (diasRestantes <= 2 && diasRestantes >= 1) {
@@ -3431,6 +3792,15 @@
                         }
                     }
                     // Dias 1-13: sem aviso visual extra, trial tranquilo
+                } else if (statusSalon === 'vencido') {
+                    // Assinatura já foi paga antes, mas o período contratado acabou
+                    // (a rotina diária do backend detecta isso e marca como vencido).
+                    if (barraBloqueio) {
+                        document.getElementById('texto-barra-bloqueio').innerText = '🔒 Sua assinatura venceu. Renove para continuar agendando.';
+                        barraBloqueio.style.display = 'block';
+                    }
+                    if (appMain) appMain.style.paddingTop = '55px';
+                    acessoLiberadoGlobal = false;
                 }
 
                 // === CAMPOS DO PERFIL ===
@@ -3438,14 +3808,18 @@
                 document.getElementById('perfil-mapa').value = dados.linkMapa || "";
                 document.getElementById('perfil-pix').value = dados.chavePix || "";
                 document.getElementById('perfil-politica-deposito').value = dados.politicaDeposito || "reembolsavel";
+                document.getElementById('perfil-descontar-custo-produto').checked = dados.descontarCustoProduto || false;
 
                 let textoPlano = plano === 'premium' ? "PREMIUM" : "BÁSICO";
                 if (statusSalon === 'trial') {
                     if (trialExpirado) textoPlano = "TRIAL EXPIRADO";
                     else if (diasRestantes !== null) textoPlano = `TESTE GRÁTIS (${diasRestantes}d restantes)`;
                     else textoPlano = "TESTE GRÁTIS (15d)";
+                } else if (statusSalon === 'vencido') {
+                    textoPlano = `${textoPlano} (VENCIDA — renove)`;
                 }
                 document.getElementById('perfil-plano').value = textoPlano;
+                atualizarStatusConexaoMP(!!dados.mpConectado);
 
                 document.getElementById('nome-salao-topo').innerText = nomeSalao;
                 document.getElementById('perfil-abertura').value = dados.abertura || "08:00";
@@ -3546,6 +3920,7 @@
                 await carregarProfissionaisAgendamento();
                 await carregarServicosAgendamento();
                 profissionalSelecionado = null;
+                profissionalIdSelecionado = null;
                 document.getElementById('total-price').innerText = '0,00';
                 configurarDataAutomatica();
                 await carregarDadosPerfil();
@@ -3554,7 +3929,8 @@
                 await carregarListaConfig('funcionarios', 'list-workers-config');
                 await carregarListaConfig('servicos', 'list-services-config');
             }
-            if (paginaId === 'page-reports') await carregarRelatorios();
+            if (paginaId === 'page-reports') { await carregarRelatorios(); await carregarCobrancasAluguel(); await carregarFolhaPagamento(); await carregarCobrancasClientes(); }
+            if (paginaId === 'page-faq') await carregarVideosFaq();
             if (paginaId === 'page-profile') await carregarDadosPerfil();
             if (paginaId === 'page-home') { await carregarAgendamentos(); await calcularEstatisticasMes(); }
         }
@@ -3577,6 +3953,7 @@
                     document.querySelectorAll('.worker-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                     profissionalSelecionado = p.nome;
+                    profissionalIdSelecionado = doc.id;
                     showToast(`Profissional ${p.nome} selecionado!`);
                 };
                 container.appendChild(card);
@@ -3596,7 +3973,8 @@
                 const div = document.createElement('div');
                 div.className = 'service-item';
                 const precoNum = parseFloat(s.preco) || 0;
-                div.innerHTML = `<label>${s.nomeServico} (R$ ${precoNum.toFixed(2)})</label><input type="checkbox" class="service-check" data-price="${precoNum}" data-name="${s.nomeServico}" onchange="recalcularTotal()">`;
+                const custoNum = parseFloat(s.custoProduto) || 0;
+                div.innerHTML = `<label>${s.nomeServico} (R$ ${precoNum.toFixed(2)})</label><input type="checkbox" class="service-check" data-price="${precoNum}" data-name="${s.nomeServico}" data-custo="${custoNum}" onchange="recalcularTotal()">`;
                 container.appendChild(div);
             });
         }
@@ -3840,6 +4218,443 @@
             if (btn) btn.classList.add('active');
             carregarRelatorios();
         };
+
+        // ============================================
+        // FOLHA DE PAGAMENTO (CLT)
+        // ============================================
+        let ultimaFolhaGerada = []; // guarda o resultado calculado, pra exportar sem recalcular
+
+        window.carregarFolhaPagamento = async () => {
+            if (!auth.currentUser) return;
+            const overlay = document.getElementById('overlay-remuneracao');
+            if (overlay && overlay.style.display === 'flex') return; // bloqueado pro plano atual
+            const container = document.getElementById('lista-folha-pagamento');
+            const mesInput = document.getElementById('folha-mes-input');
+            const mesAno = mesInput.value || new Date().toISOString().slice(0, 7); // "YYYY-MM"
+            if (!mesInput.value) mesInput.value = mesAno;
+
+            container.innerHTML = '<div class="empty-state">Calculando...</div>';
+
+            try {
+                const [ano, mes] = mesAno.split('-').map(Number);
+                const inicioMes = new Date(ano, mes - 1, 1);
+                const fimMes = new Date(ano, mes, 1); // primeiro dia do mês seguinte (limite exclusivo)
+
+                // 1. Busca todos os profissionais CLT do salão
+                const qProf = query(collection(db, 'funcionarios'), where('salonId', '==', auth.currentUser.uid));
+                const profSnap = await getDocs(qProf);
+                const profissionaisCLT = [];
+                profSnap.forEach(d => {
+                    const dados = d.data();
+                    if (dados.remuneracao?.tipo === 'clt') profissionaisCLT.push({ id: d.id, ...dados });
+                });
+
+                if (profissionaisCLT.length === 0) {
+                    container.innerHTML = '<div class="empty-state">Nenhum profissional CLT cadastrado.</div>';
+                    ultimaFolhaGerada = [];
+                    return;
+                }
+
+                // 2. Busca os agendamentos pagos do salão no mês (uma query só, filtra em memória por profissional)
+                const qAgend = query(
+                    collection(db, 'agendamentos'),
+                    where('salonId', '==', auth.currentUser.uid),
+                    where('status', '==', 'pago')
+                );
+                const agendSnap = await getDocs(qAgend);
+                const comissaoPorProfissional = {};
+                agendSnap.forEach(d => {
+                    const a = d.data();
+                    if (!a.profissionalId || !a.concluidoEm) return;
+                    const dataConclusao = a.concluidoEm.toDate ? a.concluidoEm.toDate() : new Date(a.concluidoEm);
+                    if (dataConclusao < inicioMes || dataConclusao >= fimMes) return;
+                    comissaoPorProfissional[a.profissionalId] = (comissaoPorProfissional[a.profissionalId] || 0) + (a.comissaoProfissional || 0);
+                });
+
+                // 3. Monta a folha final
+                ultimaFolhaGerada = profissionaisCLT.map(p => {
+                    const salarioBase = p.remuneracao.salarioBase || 0;
+                    const comissaoAcumulada = Math.round((comissaoPorProfissional[p.id] || 0) * 100) / 100;
+                    return {
+                        nome: p.nome,
+                        salarioBase,
+                        comissaoAcumulada,
+                        totalAPagar: Math.round((salarioBase + comissaoAcumulada) * 100) / 100,
+                    };
+                });
+
+                container.innerHTML = ultimaFolhaGerada.map(f => `
+                    <div class="admin-list-item" style="flex-direction:column; align-items:flex-start; gap:4px;">
+                        <strong>${f.nome}</strong>
+                        <div style="font-size:0.8rem; color:#888;">
+                            Salário base: R$ ${f.salarioBase.toFixed(2)} · Comissão do mês: R$ ${f.comissaoAcumulada.toFixed(2)}
+                        </div>
+                        <div style="font-weight:700; color:var(--primary);">Total a pagar: R$ ${f.totalAPagar.toFixed(2)}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Erro ao gerar folha de pagamento:', err);
+                container.innerHTML = '<div class="empty-state">Erro ao calcular a folha. Tente novamente.</div>';
+                ultimaFolhaGerada = [];
+            }
+        };
+
+        window.exportarFolhaPagamentoCSV = () => {
+            if (!ultimaFolhaGerada || ultimaFolhaGerada.length === 0) {
+                showToast('Gere a folha do mês antes de exportar.', true);
+                return;
+            }
+            const mesAno = document.getElementById('folha-mes-input').value || 'folha';
+            let csv = 'Profissional;Salario Base;Comissao do Mes;Total a Pagar\n';
+            ultimaFolhaGerada.forEach(f => {
+                csv += `${f.nome};${f.salarioBase.toFixed(2).replace('.', ',')};${f.comissaoAcumulada.toFixed(2).replace('.', ',')};${f.totalAPagar.toFixed(2).replace('.', ',')}\n`;
+            });
+            // BOM no início pra Excel abrir acentuação corretamente
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `folha-pagamento-${mesAno}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        // ============================================
+        // COBRANÇAS DE ALUGUEL DE CADEIRA
+        // ============================================
+        window.carregarCobrancasAluguel = async () => {
+            if (!auth.currentUser) return;
+            const overlay = document.getElementById('overlay-remuneracao');
+            if (overlay && overlay.style.display === 'flex') return; // bloqueado pro plano atual
+            const container = document.getElementById('lista-cobrancas-aluguel');
+            if (!container) return;
+            try {
+                // Sem orderBy na query pra não exigir índice composto no Firestore —
+                // ordena no próprio JS, já que o volume de cobranças é pequeno.
+                const q = query(
+                    collection(db, 'alugueis'),
+                    where('salonId', '==', auth.currentUser.uid)
+                );
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    container.innerHTML = '<div class="empty-state">Nenhuma cobrança gerada ainda.</div>';
+                    return;
+                }
+                const cobrancas = [];
+                snap.forEach(d => cobrancas.push({ id: d.id, ...d.data() }));
+                cobrancas.sort((a, b) => (b.competencia || '').localeCompare(a.competencia || ''));
+
+                let html = '';
+                cobrancas.forEach(c => {
+                    const statusCor = c.status === 'pago' ? '#27ae60' : (c.status === 'atrasado' ? '#e74c3c' : '#f39c12');
+                    const statusTexto = c.status === 'pago' ? 'Pago' : (c.status === 'atrasado' ? 'Atrasado' : 'Pendente');
+                    html += `
+                        <div class="admin-list-item">
+                            <span><strong>${c.nomeProfissional || 'Profissional'}</strong> — R$ ${(c.valor || 0).toFixed(2)}
+                                <br><span style="font-size:0.72rem; color:${statusCor};">${statusTexto} · vencimento ${c.competencia}</span>
+                            </span>
+                            ${c.status !== 'pago' ? `<button class="btn-icon-acao" onclick="marcarAluguelPago('${c.id}')" title="Marcar como pago"><i class="fas fa-check"></i></button>` : ''}
+                        </div>`;
+                });
+                container.innerHTML = html;
+            } catch (err) {
+                console.error('Erro ao carregar cobranças de aluguel:', err);
+                container.innerHTML = '<div class="empty-state">Erro ao carregar cobranças.</div>';
+            }
+        };
+
+        window.marcarAluguelPago = async (id) => {
+            try {
+                await updateDoc(doc(db, 'alugueis', id), { status: 'pago', pagoEm: Timestamp.now() });
+                showToast('✅ Cobrança marcada como paga!');
+                await carregarCobrancasAluguel();
+            } catch (err) {
+                showToast('Erro ao atualizar cobrança: ' + err.message, true);
+            }
+        };
+
+        // ============================================
+        // COBRANÇA DE CLIENTE (LINK DE PAGAMENTO)
+        // ============================================
+        let ultimoLinkCobrancaGerado = '';
+
+        window.gerarCobrancaCliente = async () => {
+            const clienteNome = document.getElementById('cobranca-cliente-nome').value.trim();
+            const descricao = document.getElementById('cobranca-descricao').value.trim();
+            const valor = parseFloat(document.getElementById('cobranca-valor').value);
+
+            if (!descricao) { showToast('Informe a descrição da cobrança', true); return; }
+            if (!valor || valor <= 0) { showToast('Informe um valor válido', true); return; }
+
+            try {
+                const idToken = await auth.currentUser.getIdToken();
+                const resp = await fetch(`${API_BASE_URL}/criarCobranca`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+                    body: JSON.stringify({ valor, descricao, clienteNome })
+                });
+                const resultado = await resp.json();
+                if (!resp.ok) throw new Error(resultado.erro || 'Erro ao gerar cobrança');
+
+                ultimoLinkCobrancaGerado = resultado.linkPagamento;
+                document.getElementById('link-cobranca-gerado').innerText = resultado.linkPagamento;
+                document.getElementById('resultado-cobranca-cliente').style.display = 'block';
+
+                document.getElementById('cobranca-cliente-nome').value = '';
+                document.getElementById('cobranca-descricao').value = '';
+                document.getElementById('cobranca-valor').value = '';
+
+                showToast('✅ Link de pagamento gerado!');
+                await carregarCobrancasClientes();
+            } catch (err) {
+                showToast('Erro: ' + err.message, true);
+            }
+        };
+
+        window.copiarLinkCobranca = () => {
+            if (!ultimoLinkCobrancaGerado) return;
+            navigator.clipboard.writeText(ultimoLinkCobrancaGerado)
+                .then(() => showToast('Link copiado!'))
+                .catch(() => showToast('Não foi possível copiar. Copie manualmente.', true));
+        };
+
+        window.compartilharLinkCobrancaWhatsApp = () => {
+            if (!ultimoLinkCobrancaGerado) return;
+            const mensagem = `Olá! Segue o link para pagamento: ${ultimoLinkCobrancaGerado}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(mensagem)}`, '_blank');
+        };
+
+        window.carregarCobrancasClientes = async () => {
+            if (!auth.currentUser) return;
+            const container = document.getElementById('lista-cobrancas-clientes');
+            if (!container) return;
+            const overlay = document.getElementById('overlay-remuneracao');
+            if (overlay && overlay.style.display === 'flex') return; // bloqueado pro plano atual
+
+            try {
+                const q = query(collection(db, 'cobrancas'), where('salonId', '==', auth.currentUser.uid));
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    container.innerHTML = '<p style="font-size:0.75rem; color:#888;">Nenhuma cobrança gerada ainda.</p>';
+                    return;
+                }
+                const cobrancas = [];
+                snap.forEach(d => cobrancas.push({ id: d.id, ...d.data() }));
+                cobrancas.sort((a, b) => {
+                    const da = a.criadoEm?.toDate ? a.criadoEm.toDate() : new Date(0);
+                    const db_ = b.criadoEm?.toDate ? b.criadoEm.toDate() : new Date(0);
+                    return db_ - da;
+                });
+
+                let html = '<p style="font-size:0.75rem; color:#888; margin-bottom:6px;">Últimas cobranças:</p>';
+                cobrancas.slice(0, 10).forEach(c => {
+                    const statusCor = c.status === 'pago' ? '#27ae60' : '#f39c12';
+                    const statusTexto = c.status === 'pago' ? 'Pago' : 'Pendente';
+                    html += `
+                        <div class="admin-list-item">
+                            <span><strong>${c.clienteNome || 'Cliente'}</strong> — R$ ${(c.valor || 0).toFixed(2)}
+                                <br><span style="font-size:0.7rem; color:${statusCor};">${statusTexto} · ${c.descricao || ''}</span>
+                            </span>
+                        </div>`;
+                });
+                container.innerHTML = html;
+            } catch (err) {
+                console.error('Erro ao carregar cobranças de clientes:', err);
+                container.innerHTML = '<p style="font-size:0.75rem; color:#888;">Erro ao carregar cobranças.</p>';
+            }
+        };
+
+        // ============================================
+        // VÍDEO NO FAQ (guardado no Firestore, editável só pelo admin)
+        // ============================================
+        const FAQ_ADMIN_EMAIL = 'extracred7@gmail.com';
+
+        // Extrai o ID de um vídeo do YouTube a partir de link completo ou já o próprio ID
+        function extrairIdYoutube(entrada) {
+            if (!entrada) return '';
+            entrada = entrada.trim();
+            const padroes = [
+                /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+            ];
+            for (const p of padroes) {
+                const m = entrada.match(p);
+                if (m) return m[1];
+            }
+            // Se não bateu com nenhum padrão de link, assume que já é o ID puro
+            if (/^[a-zA-Z0-9_-]{11}$/.test(entrada)) return entrada;
+            return '';
+        }
+
+        function injetarVideoNoItem(item, videoId) {
+            const existente = item.querySelector('.faq-video');
+            if (existente) existente.remove();
+            if (!videoId) return;
+            const iframe = document.createElement('iframe');
+            iframe.className = 'faq-video';
+            iframe.width = '100%';
+            iframe.height = '200';
+            iframe.style.borderRadius = '8px';
+            iframe.style.marginTop = '10px';
+            iframe.style.border = 'none';
+            iframe.src = `https://www.youtube.com/embed/${videoId}`;
+            iframe.setAttribute('allowfullscreen', '');
+            iframe.setAttribute('loading', 'lazy');
+            item.appendChild(iframe);
+        }
+
+        window.editarVideoFaq = async (faqId, btnEl) => {
+            const atual = document.querySelector(`.faq-item[data-faq-id="${faqId}"]`)?.dataset.videoId || '';
+            const entrada = prompt('Cole o link do vídeo do YouTube (ou deixe em branco para remover):', atual ? `https://youtu.be/${atual}` : '');
+            if (entrada === null) return; // cancelou
+
+            const videoId = entrada.trim() === '' ? '' : extrairIdYoutube(entrada);
+            if (entrada.trim() !== '' && !videoId) {
+                showToast('Não consegui reconhecer esse link do YouTube.', true);
+                return;
+            }
+
+            try {
+                await setDoc(doc(db, 'faq_videos', faqId), { videoId, atualizadoEm: Timestamp.now() });
+                const item = document.querySelector(`.faq-item[data-faq-id="${faqId}"]`);
+                if (item) {
+                    item.dataset.videoId = videoId;
+                    if (item.open) injetarVideoNoItem(item, videoId);
+                }
+                showToast(videoId ? '✅ Vídeo vinculado!' : '✅ Vídeo removido.');
+            } catch (err) {
+                showToast('Erro ao salvar vídeo: ' + err.message, true);
+            }
+        };
+
+        window.carregarVideosFaq = async () => {
+            const souAdmin = auth.currentUser && auth.currentUser.email === FAQ_ADMIN_EMAIL;
+
+            try {
+                const snap = await getDocs(collection(db, 'faq_videos'));
+                const mapa = {};
+                snap.forEach(d => { mapa[d.id] = d.data().videoId || ''; });
+
+                document.querySelectorAll('.faq-item[data-faq-id]').forEach(item => {
+                    const faqId = item.dataset.faqId;
+                    const videoId = mapa[faqId] || '';
+                    item.dataset.videoId = videoId;
+
+                    // Botão de editar (só visível pro admin) — evita duplicar se já existir
+                    let btn = item.querySelector('.faq-admin-video-btn');
+                    if (souAdmin) {
+                        if (!btn) {
+                            btn = document.createElement('button');
+                            btn.className = 'faq-admin-video-btn';
+                            btn.type = 'button';
+                            btn.innerHTML = '<i class="fas fa-video"></i>';
+                            btn.style.cssText = 'background:none; border:1px solid var(--primary); color:var(--primary); border-radius:6px; width:26px; height:26px; font-size:0.7rem; cursor:pointer; margin-left:8px; flex-shrink:0;';
+                            btn.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); editarVideoFaq(faqId, btn); };
+                            item.querySelector('summary').appendChild(btn);
+                        }
+                    } else if (btn) {
+                        btn.remove();
+                    }
+
+                    if (item.open) injetarVideoNoItem(item, videoId);
+                });
+            } catch (err) {
+                console.error('Erro ao carregar vídeos do FAQ:', err);
+            }
+        };
+
+        // Injeta o vídeo (se existir) sempre que o usuário abrir uma pergunta
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.addEventListener('toggle', () => {
+                if (item.open) injetarVideoNoItem(item, item.dataset.videoId);
+            });
+        });
+
+        // ============================================
+        // CONEXÃO OAUTH COM O MERCADO PAGO (cada salão com a própria conta)
+        // ============================================
+        window.iniciarConexaoMercadoPago = () => {
+            if (!MP_CLIENT_ID_OAUTH) {
+                showToast('Conexão ainda não configurada pelo desenvolvedor.', true);
+                return;
+            }
+            const state = Math.random().toString(36).slice(2) + Date.now();
+            sessionStorage.setItem('mp_oauth_state', state);
+            const url = `https://auth.mercadopago.com.br/authorization?client_id=${MP_CLIENT_ID_OAUTH}&response_type=code&platform_id=mp&state=${state}&redirect_uri=${encodeURIComponent(MP_OAUTH_REDIRECT_URI)}`;
+            window.location.href = url;
+        };
+
+        window.desconectarMercadoPago = async () => {
+            if (!confirm('Desconectar sua conta do Mercado Pago? Você não vai conseguir gerar novos links de cobrança até reconectar.')) return;
+            try {
+                const idToken = await auth.currentUser.getIdToken();
+                const resp = await fetch(`${API_BASE_URL}/oauth/mercadopago/desconectar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` }
+                });
+                if (!resp.ok) throw new Error('Falha ao desconectar');
+                showToast('Conta desconectada.');
+                atualizarStatusConexaoMP(false);
+            } catch (err) {
+                showToast('Erro ao desconectar: ' + err.message, true);
+            }
+        };
+
+        function atualizarStatusConexaoMP(conectado) {
+            const texto = document.getElementById('mp-conexao-status-texto');
+            const btnConectar = document.getElementById('btn-mp-conectar');
+            const btnDesconectar = document.getElementById('btn-mp-desconectar');
+            if (!texto || !btnConectar || !btnDesconectar) return;
+
+            if (conectado) {
+                texto.innerHTML = '✅ Conta conectada — os links de cobrança caem direto na sua conta.';
+                texto.style.color = '#27ae60';
+                btnConectar.style.display = 'none';
+                btnDesconectar.style.display = 'block';
+            } else {
+                texto.innerHTML = 'Conecte sua conta do Mercado Pago pra poder gerar links de cobrança pros seus clientes.';
+                texto.style.color = '#888';
+                btnConectar.style.display = 'block';
+                btnDesconectar.style.display = 'none';
+            }
+        }
+
+        // Chamada quando o MP redireciona de volta pro app depois da autorização
+        async function verificarRetornoOAuthMercadoPago() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            const state = params.get('state');
+            if (!code) return;
+
+            const stateEsperado = sessionStorage.getItem('mp_oauth_state');
+            sessionStorage.removeItem('mp_oauth_state');
+            history.replaceState({}, '', window.location.pathname); // limpa ?code=... da URL
+
+            if (!state || state !== stateEsperado) {
+                showToast('Não foi possível confirmar a conexão (sessão expirada). Tente novamente.', true);
+                return;
+            }
+            if (!auth.currentUser) return;
+
+            try {
+                const idToken = await auth.currentUser.getIdToken();
+                const resp = await fetch(`${API_BASE_URL}/oauth/mercadopago/trocarCodigo`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+                    body: JSON.stringify({ code })
+                });
+                const resultado = await resp.json();
+                if (!resp.ok) { showToast(resultado.erro || 'Erro ao conectar conta', true); return; }
+                showToast('✅ Conta do Mercado Pago conectada!');
+                atualizarStatusConexaoMP(true);
+            } catch (err) {
+                showToast('Erro ao conectar: ' + err.message, true);
+            }
+        }
         
         // ============================================
         // SISTEMA DE TEMAS — 12 CORES (4 Básico + 8 Premium)
@@ -4026,6 +4841,7 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) { 
                 await checkSystemAccess(user); 
+                await verificarRetornoOAuthMercadoPago();
             } else { 
                 if (unsubscribeBookings) unsubscribeBookings();
                 if (unsubscribeStatus) unsubscribeStatus();
@@ -4332,11 +5148,63 @@
         }
 
         
+        // Preenche o <select> de dia de vencimento de acordo com a periodicidade
+        // (semanal = dia da semana, mensal = dia do mês). prefixo é 'worker' (cadastro) ou 'edit' (edição).
+        window.atualizarLabelVencimento = (prefixo) => {
+            const periodicidade = document.getElementById(`${prefixo}-periodicidade-aluguel`).value;
+            const select = document.getElementById(`${prefixo}-dia-vencimento`);
+            const valorAtual = select.value; // preserva seleção anterior se possível
+            select.innerHTML = '';
+
+            if (periodicidade === 'semanal') {
+                const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                dias.forEach((nome, i) => {
+                    const opt = document.createElement('option');
+                    opt.value = i;
+                    opt.textContent = `Vence toda ${nome}`;
+                    select.appendChild(opt);
+                });
+            } else {
+                for (let dia = 1; dia <= 28; dia++) {
+                    const opt = document.createElement('option');
+                    opt.value = dia;
+                    opt.textContent = `Vence todo dia ${dia}`;
+                    select.appendChild(opt);
+                }
+            }
+            if (valorAtual !== '' && [...select.options].some(o => o.value === valorAtual)) {
+                select.value = valorAtual;
+            }
+        };
+
+        window.atualizarCamposRemuneracao = () => {
+            const tipo = document.getElementById('worker-tipo-remuneracao').value;
+            document.querySelectorAll('.campos-remuneracao').forEach(el => el.style.display = 'none');
+            const alvo = document.getElementById(`campos-remuneracao-${tipo}`);
+            if (alvo) alvo.style.display = 'block';
+            if (tipo === 'aluguel') atualizarLabelVencimento('worker');
+        };
+
         window.salvarProfissional = async () => {
             if (!acessoLiberadoGlobal) { showToast("🔒 Assinatura expirada.", true); return; }
             const nome = document.getElementById('worker-name').value.trim();
             const especialidade = document.getElementById('worker-skill').value.trim();
             if (!nome) { showToast("Informe o nome do profissional", true); return; }
+
+            const tipoRemuneracao = document.getElementById('worker-tipo-remuneracao').value;
+            const remuneracao = { tipo: tipoRemuneracao };
+
+            if (tipoRemuneracao === 'parceiro') {
+                remuneracao.comissaoPercentual = parseFloat(document.getElementById('worker-comissao-parceiro').value) || 0;
+            } else if (tipoRemuneracao === 'clt') {
+                remuneracao.salarioBase = parseFloat(document.getElementById('worker-salario-base').value) || 0;
+                remuneracao.comissaoPercentual = parseFloat(document.getElementById('worker-comissao-clt').value) || 0;
+            } else if (tipoRemuneracao === 'aluguel') {
+                remuneracao.valorAluguel = parseFloat(document.getElementById('worker-valor-aluguel').value) || 0;
+                remuneracao.periodicidade = document.getElementById('worker-periodicidade-aluguel').value;
+                remuneracao.diaVencimento = parseInt(document.getElementById('worker-dia-vencimento').value) || 1;
+            }
+
             try {
                 // A verificação de limite e a criação agora acontecem no backend
                 // (com Admin SDK), pra ninguém conseguir editar profissionaisAtivos
@@ -4348,7 +5216,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${idToken}`
                     },
-                    body: JSON.stringify({ nome, especialidade })
+                    body: JSON.stringify({ nome, especialidade, remuneracao })
                 });
                 const resultado = await resp.json();
 
@@ -4373,13 +5241,15 @@
             const nome = document.getElementById('service-name-input').value.trim();
             const preco = parseFloat(document.getElementById('service-price-input').value);
             const duracao = parseInt(document.getElementById('service-duration-input').value);
+            const custoProduto = parseFloat(document.getElementById('service-cost-input').value) || 0;
             if (!nome || isNaN(preco)) { showToast("Preencha nome e preço", true); return; }
             try {
-                await addDoc(collection(db, "servicos"), { salonId: auth.currentUser.uid, nomeServico: nome, preco: preco, duracao: duracao || 30 });
+                await addDoc(collection(db, "servicos"), { salonId: auth.currentUser.uid, nomeServico: nome, preco: preco, duracao: duracao || 30, custoProduto: custoProduto });
                 showToast("Serviço salvo!");
                 document.getElementById('service-name-input').value = '';
                 document.getElementById('service-price-input').value = '';
                 document.getElementById('service-duration-input').value = '';
+                document.getElementById('service-cost-input').value = '';
                 await carregarListaConfig('servicos', 'list-services-config');
                 await carregarServicosAgendamento();
             } catch (err) { showToast("Erro ao salvar serviço: " + err.message, true); }
@@ -4398,11 +5268,17 @@
                 const label = item.nome || item.nomeServico;
                 const subLabel = item.preco ? ` - R$ ${item.preco.toFixed(2)}` : '';
                 const extraInfo = item.especialidade ? ` (${item.especialidade})` : '';
+                const badgeRemuneracao = item.remuneracao?.tipo
+                    ? `<span style="font-size:0.65rem; background:rgba(0,0,0,0.08); border-radius:8px; padding:2px 6px; margin-left:6px;">${
+                        { parceiro: '🤝 Parceiro', clt: '📋 CLT', aluguel: '🔑 Aluguel' }[item.remuneracao.tipo] || ''
+                      }</span>`
+                    : '';
                 if (colecao === 'funcionarios') {
                     const fotoUrl = item.foto || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
-                    list.innerHTML += `<div class="admin-list-item"><div class="worker-info"><img src="${fotoUrl}"><span><strong>${label}</strong>${extraInfo}</span></div><div style="display:flex;gap:2px;align-items:center;"><button class="btn-icon-acao" onclick="editarProfissional('${doc.id}','${label.replace(/'/g, "\'")}','${(item.especialidade||"").replace(/'/g, "\'")}')"><i class="fas fa-pen"></i></button><button class="btn-icon-acao" onclick="abrirModalWorker('${label.replace(/'/g, "\'")}')"><i class="fas fa-camera"></i></button><button class="btn-icon-acao btn-icon-danger" onclick="removerItem('${colecao}', '${doc.id}')"><i class="fas fa-trash"></i></button></div></div>`;
+                    const remuneracaoJSON = encodeURIComponent(JSON.stringify(item.remuneracao || {tipo:'parceiro'}));
+                    list.innerHTML += `<div class="admin-list-item"><div class="worker-info"><img src="${fotoUrl}"><span><strong>${label}</strong>${extraInfo}${badgeRemuneracao}</span></div><div style="display:flex;gap:2px;align-items:center;"><button class="btn-icon-acao" onclick="editarProfissional('${doc.id}','${label.replace(/'/g, "\'")}','${(item.especialidade||"").replace(/'/g, "\'")}')"><i class="fas fa-pen"></i></button><button class="btn-icon-acao" onclick="abrirModalRemuneracao('${doc.id}','${remuneracaoJSON}')"><i class="fas fa-money-bill-wave"></i></button><button class="btn-icon-acao" onclick="abrirModalWorker('${label.replace(/'/g, "\'")}')"><i class="fas fa-camera"></i></button><button class="btn-icon-acao btn-icon-danger" onclick="removerItem('${colecao}', '${doc.id}')"><i class="fas fa-trash"></i></button></div></div>`;
                 } else {
-                    list.innerHTML += `<div class="admin-list-item"><span>${label}${subLabel}${extraInfo}</span><div style="display:flex;gap:2px;align-items:center;"><button class="btn-icon-acao" onclick="editarServico('${doc.id}','${label.replace(/'/g, "\'")}',${ item.preco||0},${item.duracao||30})"><i class="fas fa-pen"></i></button><button class="btn-icon-acao btn-icon-danger" onclick="removerItem('${colecao}', '${doc.id}')"><i class="fas fa-trash"></i></button></div></div>`;
+                    list.innerHTML += `<div class="admin-list-item"><span>${label}${subLabel}${extraInfo}</span><div style="display:flex;gap:2px;align-items:center;"><button class="btn-icon-acao" onclick="editarServico('${doc.id}','${label.replace(/'/g, "\'")}',${ item.preco||0},${item.duracao||30},${item.custoProduto||0})"><i class="fas fa-pen"></i></button><button class="btn-icon-acao btn-icon-danger" onclick="removerItem('${colecao}', '${doc.id}')"><i class="fas fa-trash"></i></button></div></div>`;
                 }
             });
         }
@@ -4418,18 +5294,82 @@
                 .catch(e => showToast('Erro: ' + e.message, true));
         };
 
+        window.atualizarCamposRemuneracaoEdit = () => {
+            const tipo = document.getElementById('edit-tipo-remuneracao').value;
+            document.querySelectorAll('.edit-campos-remuneracao').forEach(el => el.style.display = 'none');
+            const alvo = document.getElementById(`edit-campos-remuneracao-${tipo}`);
+            if (alvo) alvo.style.display = 'block';
+            if (tipo === 'aluguel') atualizarLabelVencimento('edit');
+        };
+
+        window.abrirModalRemuneracao = (id, remuneracaoJSON) => {
+            let remuneracao;
+            try { remuneracao = JSON.parse(decodeURIComponent(remuneracaoJSON)); }
+            catch (e) { remuneracao = { tipo: 'parceiro' }; }
+
+            document.getElementById('edit-remuneracao-id').value = id;
+            document.getElementById('edit-tipo-remuneracao').value = remuneracao.tipo || 'parceiro';
+
+            document.getElementById('edit-comissao-parceiro').value = remuneracao.tipo === 'parceiro' ? (remuneracao.comissaoPercentual ?? '') : '';
+            document.getElementById('edit-salario-base').value = remuneracao.tipo === 'clt' ? (remuneracao.salarioBase ?? '') : '';
+            document.getElementById('edit-comissao-clt').value = remuneracao.tipo === 'clt' ? (remuneracao.comissaoPercentual ?? '') : '';
+            document.getElementById('edit-valor-aluguel').value = remuneracao.tipo === 'aluguel' ? (remuneracao.valorAluguel ?? '') : '';
+            document.getElementById('edit-periodicidade-aluguel').value = remuneracao.tipo === 'aluguel' ? (remuneracao.periodicidade || 'semanal') : 'semanal';
+
+            atualizarCamposRemuneracaoEdit();
+            if (remuneracao.tipo === 'aluguel' && remuneracao.diaVencimento !== undefined) {
+                document.getElementById('edit-dia-vencimento').value = remuneracao.diaVencimento;
+            }
+            document.getElementById('modal-editar-remuneracao').classList.add('active');
+        };
+
+        window.fecharModalRemuneracao = () => {
+            document.getElementById('modal-editar-remuneracao').classList.remove('active');
+        };
+
+        window.salvarRemuneracaoEditada = async () => {
+            const id = document.getElementById('edit-remuneracao-id').value;
+            const tipo = document.getElementById('edit-tipo-remuneracao').value;
+            const remuneracao = { tipo };
+
+            if (tipo === 'parceiro') {
+                remuneracao.comissaoPercentual = parseFloat(document.getElementById('edit-comissao-parceiro').value) || 0;
+            } else if (tipo === 'clt') {
+                remuneracao.salarioBase = parseFloat(document.getElementById('edit-salario-base').value) || 0;
+                remuneracao.comissaoPercentual = parseFloat(document.getElementById('edit-comissao-clt').value) || 0;
+            } else if (tipo === 'aluguel') {
+                remuneracao.valorAluguel = parseFloat(document.getElementById('edit-valor-aluguel').value) || 0;
+                remuneracao.periodicidade = document.getElementById('edit-periodicidade-aluguel').value;
+                remuneracao.diaVencimento = parseInt(document.getElementById('edit-dia-vencimento').value) || 1;
+            }
+
+            try {
+                // Edição de remuneração é feita direto pelo cliente — não mexe em
+                // profissionaisAtivos nem em nenhum campo protegido pelas regras.
+                await updateDoc(doc(db, 'funcionarios', id), { remuneracao });
+                showToast('✅ Remuneração atualizada!');
+                fecharModalRemuneracao();
+                await carregarListaConfig('funcionarios', 'list-workers-config');
+            } catch (err) {
+                showToast('Erro ao salvar remuneração: ' + err.message, true);
+            }
+        };
+
         // Modal de edição de serviço
-        window.editarServico = (id, nome, preco, duracao) => {
+        window.editarServico = (id, nome, preco, duracao, custoProduto) => {
             const novoNome = prompt('Nome do serviço:', nome);
             if (novoNome === null) return;
             const novoPreco = prompt('Preço (R$):', preco);
             if (novoPreco === null) return;
             const novaDuracao = prompt('Duração (minutos):', duracao);
             if (novaDuracao === null) return;
+            const novoCusto = prompt('Custo de produto (R$) — deixe 0 se não usa produto:', custoProduto || 0);
+            if (novoCusto === null) return;
             updateDoc(doc(db, 'servicos', id), { 
                 nomeServico: novoNome.trim(), 
                 preco: parseFloat(novoPreco) || 0, 
-                duracao: parseInt(novaDuracao) || 30 
+                duracao: parseInt(novaDuracao) || 30,
+                custoProduto: parseFloat(novoCusto) || 0
             })
                 .then(() => { showToast('✅ Serviço atualizado!'); carregarListaConfig('servicos', 'list-services-config'); carregarServicosAgendamento(); })
                 .catch(e => showToast('Erro: ' + e.message, true));
@@ -4572,6 +5512,10 @@
         // URL base do Cloud Run (mesmo serviço do webhook, da preferência e dos endpoints de profissional)
         const API_BASE_URL = 'https://mercadopago-webhook-864321164154.southamerica-east1.run.app';
         const MP_PUBLIC_KEY_PRODUCAO = 'APP_USR-03de60a7-6469-42bb-84a3-3262c42b932d';
+        // Client ID de OAuth (Marketplace) — pego na aba "OAuth" do painel do MP.
+        // Diferente da Public Key acima. Vazio = botão de conectar fica desativado.
+        const MP_CLIENT_ID_OAUTH = '8113489077547852';
+        const MP_OAUTH_REDIRECT_URI = 'https://rodrigoextra7-cell.github.io/CorteZap/';
 
         async function renderPayment() {
             if (!planoSelecionado) return;
