@@ -1820,34 +1820,52 @@
                     <div id="lista-cobrancas-aluguel"><div class="empty-state">Nenhuma cobrança encontrada.</div></div>
                 </div>
 
-                <div class="card" id="bloco-cobrar-cliente">
-                    <h4><i class="fas fa-link"></i> Cobrar Cliente (Link de Pagamento)</h4>
-                    <p style="font-size:0.75rem; color:#888; margin-bottom:10px;">
-                        Gere um link de pagamento (Pix/cartão) pra mandar direto pro cliente.
-                    </p>
-                    <input type="text" id="cobranca-cliente-nome" class="input-padrao" placeholder="Nome do cliente (opcional)" style="margin-bottom:8px;">
-                    <input type="text" id="cobranca-descricao" class="input-padrao" placeholder="Descrição (ex: Corte + Barba)" style="margin-bottom:8px;">
-                    <input type="number" id="cobranca-valor" class="input-padrao" placeholder="Valor (R$)" min="0.01" step="0.01" style="margin-bottom:10px;">
-                    <button class="btn" onclick="gerarCobrancaCliente()" style="background: var(--secondary);">
-                        <i class="fas fa-link"></i> Gerar Link de Pagamento
-                    </button>
-                    <div id="resultado-cobranca-cliente" style="display:none; margin-top:12px; padding:12px; background:rgba(0,0,0,0.15); border-radius:10px;">
-                        <p style="font-size:0.78rem; color:#888; margin-bottom:8px;">Link gerado:</p>
-                        <p id="link-cobranca-gerado" style="font-size:0.78rem; word-break:break-all; color:var(--primary); margin-bottom:10px;"></p>
-                        <div style="display:flex; gap:8px;">
-                            <button onclick="copiarLinkCobranca()" style="flex:1; background:#555; color:#fff; border:none; border-radius:8px; padding:8px; font-size:0.78rem; cursor:pointer;"><i class="fas fa-copy"></i> Copiar</button>
-                            <button onclick="compartilharLinkCobrancaWhatsApp()" style="flex:1; background:#25d366; color:#fff; border:none; border-radius:8px; padding:8px; font-size:0.78rem; cursor:pointer;"><i class="fab fa-whatsapp"></i> Enviar</button>
-                        </div>
-                    </div>
-                    <div id="lista-cobrancas-clientes" style="margin-top:14px;"></div>
-                </div>
-
                 <div id="overlay-remuneracao" style="display:none; position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(15,15,30,0.92); border-radius:12px; align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:20px; z-index:5;">
                     <i class="fas fa-lock" style="font-size:2rem; color:#d4af37; margin-bottom:10px;"></i>
                     <p style="color:white; font-weight:bold; margin-bottom:8px;">Recurso Premium</p>
-                    <p style="color:#ccc; font-size:0.8rem; margin-bottom:15px;">Folha de pagamento, cobrança de aluguel e link de pagamento pro cliente disponíveis no Plano Premium.</p>
+                    <p style="color:#ccc; font-size:0.8rem; margin-bottom:15px;">Folha de pagamento e cobrança de aluguel disponíveis no Plano Premium.</p>
                     <button onclick="navegarParaPagina('page-pay', null)" style="background:linear-gradient(135deg,#d4af37,#f0c040); color:#111; border:none; border-radius:8px; padding:8px 16px; font-weight:bold; cursor:pointer;">⚡ Fazer Upgrade</button>
                 </div>
+            </div>
+
+            <!-- Liberado pra todos os planos — cobrar cliente não depende de ter equipe -->
+            <div class="card" id="bloco-cobrar-cliente">
+                <h4><i class="fas fa-link"></i> Cobrar Cliente (Link ou QR Code)</h4>
+                <p style="font-size:0.75rem; color:#888; margin-bottom:10px;">
+                    Cliente ausente ou vai pagar no cartão? Use o <strong>Link</strong>.
+                    Cliente presente e vai pagar Pix na hora? Use o <strong>QR Code</strong>.
+                </p>
+                <input type="text" id="cobranca-cliente-nome" class="input-padrao" placeholder="Nome do cliente (opcional)" style="margin-bottom:8px;">
+                <input type="text" id="cobranca-descricao" class="input-padrao" placeholder="Descrição (ex: Corte + Barba)" style="margin-bottom:8px;">
+                <input type="number" id="cobranca-valor" class="input-padrao" placeholder="Valor (R$)" min="0.01" step="0.01" style="margin-bottom:10px;">
+                <div style="display:flex; gap:8px;">
+                    <button class="btn" onclick="gerarCobrancaCliente()" style="background: var(--secondary); flex:1;">
+                        <i class="fas fa-link"></i> Link
+                    </button>
+                    <button class="btn" onclick="gerarPixQrCode()" style="background:#32bcad; flex:1;">
+                        <i class="fas fa-qrcode"></i> QR Code Pix
+                    </button>
+                </div>
+
+                <div id="resultado-cobranca-cliente" style="display:none; margin-top:12px; padding:12px; background:rgba(0,0,0,0.15); border-radius:10px;">
+                    <p style="font-size:0.78rem; color:#888; margin-bottom:8px;">Link gerado:</p>
+                    <p id="link-cobranca-gerado" style="font-size:0.78rem; word-break:break-all; color:var(--primary); margin-bottom:10px;"></p>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="copiarLinkCobranca()" style="flex:1; background:#555; color:#fff; border:none; border-radius:8px; padding:8px; font-size:0.78rem; cursor:pointer;"><i class="fas fa-copy"></i> Copiar</button>
+                        <button onclick="compartilharLinkCobrancaWhatsApp()" style="flex:1; background:#25d366; color:#fff; border:none; border-radius:8px; padding:8px; font-size:0.78rem; cursor:pointer;"><i class="fab fa-whatsapp"></i> Enviar</button>
+                    </div>
+                </div>
+
+                <div id="resultado-qrcode-pix" style="display:none; margin-top:12px; padding:16px; background:rgba(0,0,0,0.15); border-radius:10px; text-align:center;">
+                    <p style="font-size:0.78rem; color:#888; margin-bottom:10px;">Peça pro cliente escanear com o app do banco dele:</p>
+                    <img id="img-qrcode-pix" style="width:220px; height:220px; max-width:100%; border-radius:8px; background:#fff; padding:8px;">
+                    <p style="font-size:0.72rem; color:#888; margin:10px 0 6px;">Ou copie o "Pix Copia e Cola":</p>
+                    <p id="texto-pix-copia-cola" style="font-size:0.68rem; word-break:break-all; color:var(--primary); background:rgba(0,0,0,0.2); padding:8px; border-radius:8px; margin-bottom:10px;"></p>
+                    <button onclick="copiarPixCopiaECola()" style="width:100%; background:#32bcad; color:#fff; border:none; border-radius:8px; padding:10px; font-size:0.85rem; font-weight:700; cursor:pointer;"><i class="fas fa-copy"></i> Copiar Pix Copia e Cola</button>
+                    <p style="font-size:0.68rem; color:#888; margin-top:10px;">A tela atualiza sozinha assim que o pagamento cair.</p>
+                </div>
+
+                <div id="lista-cobrancas-clientes" style="margin-top:14px;"></div>
             </div>
         </section>
         
@@ -2315,6 +2333,38 @@
             </div>
 
             <div class="card faq-grupo">
+                <h4>💳 Cobrar Clientes (Mercado Pago)</h4>
+                <details class="faq-item" data-video-id="" data-faq-id="mp-conectar-conta">
+                    <summary>Como conecto minha conta do Mercado Pago?</summary>
+                    <p>Vá em <strong>Perfil → Conectar Mercado Pago</strong> e toque em "Conectar minha conta". Você vai ser levado pra uma tela do próprio Mercado Pago pra fazer login (ou criar uma conta, se ainda não tiver) e autorizar o CorteZap. Depois disso, o app volta sozinho e mostra "Conectado ✅".</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="mp-por-que-conectar">
+                    <summary>Por que preciso conectar a minha própria conta?</summary>
+                    <p>Porque o dinheiro que o seu cliente paga precisa cair na <strong>sua</strong> conta, não na do CorteZap. Sem conectar, o app não sabe em qual conta gerar o pagamento — por isso o botão de gerar cobrança fica bloqueado até você conectar.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="mp-como-cobrar">
+                    <summary>Como eu cobro um cliente?</summary>
+                    <p>Em <strong>Relatórios → Cobrar Cliente</strong>, preencha o nome (opcional), a descrição do serviço e o valor, e toque em "Gerar Link de Pagamento". Você pode copiar o link ou mandar direto por WhatsApp pro cliente.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="mp-como-cliente-paga">
+                    <summary>Como o cliente paga esse link?</summary>
+                    <p>Ele abre o link, escolhe Pix, cartão de crédito ou débito, e paga direto numa página do Mercado Pago — sem precisar instalar nada nem ter conta lá. Assim que o pagamento é aprovado, a cobrança muda pra "Pago" sozinha na sua lista.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="mp-precisa-maquininha">
+                    <summary>Preciso de maquininha pra isso funcionar?</summary>
+                    <p>Não. É tudo pela internet — Pix ou cartão digitado na hora pelo cliente. Nenhum equipamento físico é necessário.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="mp-outro-meio-cobranca">
+                    <summary>E se eu já cobro de outro jeito (maquininha própria, dinheiro, Pix pessoal)?</summary>
+                    <p>Sem problema, esse recurso é 100% opcional. Você pode continuar cobrando do seu jeito normalmente e só marcar o atendimento como concluído no app — o cálculo de comissão do profissional funciona do mesmo jeito, independente de como o cliente pagou.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="mp-e-premium">
+                    <summary>Isso é Premium?</summary>
+                    <p>Sim. Conectar conta e gerar links de cobrança são recursos exclusivos do Plano Premium.</p>
+                </details>
+            </div>
+
+            <div class="card faq-grupo">
                 <h4>📅 Agendamentos e Depósito</h4>
                 <details class="faq-item" data-video-id="" data-faq-id="agenda-deposito-antifuro">
                     <summary>O que é o depósito anti-furo?</summary>
@@ -2566,9 +2616,10 @@
             const overlayRemuneracao = document.getElementById('overlay-remuneracao');
             if (overlayRemuneracao) overlayRemuneracao.style.display = isPremium ? 'none' : 'flex';
 
-            // 10. Conectar Mercado Pago (Premium — é o que habilita cobrar clientes)
+            // 10. Conectar Mercado Pago — liberado pra todos os planos, já que
+            // cobrar cliente também é (mesma lógica de acesso, não é Premium).
             const overlayMpConexao = document.getElementById('overlay-mp-conexao-premium');
-            if (overlayMpConexao) overlayMpConexao.style.display = isPremium ? 'none' : 'flex';
+            if (overlayMpConexao) overlayMpConexao.style.display = 'none';
         }
 
         window.clicarFiltroAnoPremium = function(btn) {
@@ -4367,7 +4418,7 @@
                             <span><strong>${c.nomeProfissional || 'Profissional'}</strong> — R$ ${(c.valor || 0).toFixed(2)}
                                 <br><span style="font-size:0.72rem; color:${statusCor};">${statusTexto} · vencimento ${c.competencia}</span>
                             </span>
-                            ${c.status !== 'pago' ? `<button class="btn-icon-acao" onclick="marcarAluguelPago('${c.id}')" title="Marcar como pago"><i class="fas fa-check"></i></button>` : ''}
+                            ${c.status !== 'pago' ? `<button class="btn-icon-acao" onclick="marcarAluguelPago('${c.id}', '${(c.nomeProfissional || 'Profissional').replace(/'/g, "\\'")}', ${c.valor || 0})" title="Marcar como pago"><i class="fas fa-check"></i></button>` : ''}
                         </div>`;
                 });
                 container.innerHTML = html;
@@ -4377,7 +4428,9 @@
             }
         };
 
-        window.marcarAluguelPago = async (id) => {
+        window.marcarAluguelPago = async (id, nomeProfissional, valor) => {
+            const valorFmt = (Number(valor) || 0).toFixed(2);
+            if (!confirm(`Marcar aluguel de "${nomeProfissional || 'Profissional'}" (R$ ${valorFmt}) como pago?`)) return;
             try {
                 await updateDoc(doc(db, 'alugueis', id), { status: 'pago', pagoEm: Timestamp.now() });
                 showToast('✅ Cobrança marcada como paga!');
@@ -4411,6 +4464,7 @@
                 if (!resp.ok) throw new Error(resultado.erro || 'Erro ao gerar cobrança');
 
                 ultimoLinkCobrancaGerado = resultado.linkPagamento;
+                document.getElementById('resultado-qrcode-pix').style.display = 'none';
                 document.getElementById('link-cobranca-gerado').innerText = resultado.linkPagamento;
                 document.getElementById('resultado-cobranca-cliente').style.display = 'block';
 
@@ -4438,12 +4492,69 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(mensagem)}`, '_blank');
         };
 
+        // ============================================
+        // QR CODE PIX (cliente presente, sem sair do app)
+        // ============================================
+        let ultimoPixCopiaECola = '';
+        let unsubscribeQrCodePix = null;
+
+        window.gerarPixQrCode = async () => {
+            const clienteNome = document.getElementById('cobranca-cliente-nome').value.trim();
+            const descricao = document.getElementById('cobranca-descricao').value.trim();
+            const valor = parseFloat(document.getElementById('cobranca-valor').value);
+
+            if (!descricao) { showToast('Informe a descrição da cobrança', true); return; }
+            if (!valor || valor <= 0) { showToast('Informe um valor válido', true); return; }
+
+            try {
+                const idToken = await auth.currentUser.getIdToken();
+                const resp = await fetch(`${API_BASE_URL}/gerarPixQrCode`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+                    body: JSON.stringify({ valor, descricao, clienteNome })
+                });
+                const resultado = await resp.json();
+                if (!resp.ok) throw new Error(resultado.erro || 'Erro ao gerar QR Code');
+
+                ultimoPixCopiaECola = resultado.pixCopiaECola;
+                document.getElementById('resultado-cobranca-cliente').style.display = 'none';
+                document.getElementById('img-qrcode-pix').src = `data:image/png;base64,${resultado.qrCodeBase64}`;
+                document.getElementById('texto-pix-copia-cola').innerText = resultado.pixCopiaECola;
+                document.getElementById('resultado-qrcode-pix').style.display = 'block';
+
+                document.getElementById('cobranca-cliente-nome').value = '';
+                document.getElementById('cobranca-descricao').value = '';
+                document.getElementById('cobranca-valor').value = '';
+
+                showToast('✅ QR Code gerado! Aguardando pagamento...');
+                await carregarCobrancasClientes();
+
+                // Escuta em tempo real — some sozinho o QR e avisa quando o Pix cair
+                if (unsubscribeQrCodePix) unsubscribeQrCodePix();
+                unsubscribeQrCodePix = onSnapshot(doc(db, 'cobrancas', resultado.cobrancaId), (snap) => {
+                    if (snap.exists() && snap.data().status === 'pago') {
+                        showToast('🎉 Pagamento recebido!');
+                        document.getElementById('resultado-qrcode-pix').style.display = 'none';
+                        if (unsubscribeQrCodePix) { unsubscribeQrCodePix(); unsubscribeQrCodePix = null; }
+                        carregarCobrancasClientes();
+                    }
+                });
+            } catch (err) {
+                showToast('Erro: ' + err.message, true);
+            }
+        };
+
+        window.copiarPixCopiaECola = () => {
+            if (!ultimoPixCopiaECola) return;
+            navigator.clipboard.writeText(ultimoPixCopiaECola)
+                .then(() => showToast('Código Pix copiado!'))
+                .catch(() => showToast('Não foi possível copiar. Copie manualmente.', true));
+        };
+
         window.carregarCobrancasClientes = async () => {
             if (!auth.currentUser) return;
             const container = document.getElementById('lista-cobrancas-clientes');
             if (!container) return;
-            const overlay = document.getElementById('overlay-remuneracao');
-            if (overlay && overlay.style.display === 'flex') return; // bloqueado pro plano atual
 
             try {
                 const q = query(collection(db, 'cobrancas'), where('salonId', '==', auth.currentUser.uid));
@@ -4849,6 +4960,7 @@
         };
         
         window.appLogout = async () => {
+            if (!confirm('Sair da sua conta?')) return;
             try {
                 if (unsubscribeBookings) unsubscribeBookings();
                 if (unsubscribeStatus) unsubscribeStatus();
