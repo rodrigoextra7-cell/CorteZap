@@ -1607,8 +1607,78 @@
                 <h3 style="margin:10px 0 6px;">Agendamento confirmado!</h3>
                 <p id="publico-resumo-final" style="color:#888; font-size:0.85rem; line-height:1.6;"></p>
             </div>
+
+            <p style="text-align:center; margin-top:16px;">
+                <a href="?privacidade=1" target="_blank" style="font-size:0.7rem; color:#888;">Política de Privacidade</a>
+            </p>
         </div>
     </div>
+
+    <!-- ═══ TELA DA POLÍTICA DE PRIVACIDADE (sem login, ?privacidade=1) ═══ -->
+    <div id="tela-privacidade" style="display:none; max-width:600px; margin:0 auto; padding:20px; min-height:100vh; background:var(--bg, #fff); line-height:1.6; font-size:0.88rem;">
+        <h2 style="margin-bottom:4px;">Política de Privacidade — CorteZap</h2>
+        <p style="color:#888; font-size:0.75rem; margin-bottom:20px;">Última atualização: agosto de 2026</p>
+
+        <p>Esta política explica como o <strong>CorteZap</strong> coleta, usa e protege dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018).</p>
+
+        <h3 style="margin-top:20px;">1. Quem somos</h3>
+        <p>O CorteZap é um aplicativo de gestão para salões de beleza e barbearias, desenvolvido pela Varejotec. Cada salão que usa o CorteZap é responsável pela própria conta e pelos dados dos próprios clientes que cadastra ou que se agendam através do link público dele.</p>
+
+        <h3 style="margin-top:20px;">2. Quais dados coletamos</h3>
+        <p><strong>Do dono do salão (quem cria uma conta no CorteZap):</strong></p>
+        <ul style="padding-left:20px;">
+            <li>E-mail e senha (a senha nunca fica visível nem pra nós — é armazenada de forma criptografada pelo Firebase Authentication)</li>
+            <li>Nome do salão, chave Pix, horário de funcionamento, foto do salão</li>
+            <li>Dados de conexão com o Mercado Pago (token de acesso), usados só pelo sistema pra processar pagamentos — nenhuma pessoa, nem nós, consegue ler esse token diretamente</li>
+        </ul>
+        <p><strong>Dos clientes finais do salão (quem agenda um horário):</strong></p>
+        <ul style="padding-left:20px;">
+            <li>Nome e telefone/WhatsApp, informados pelo próprio cliente ao marcar um horário (seja direto com o salão, seja pelo link público de agendamento)</li>
+            <li>Dados do agendamento: serviço escolhido, profissional, data e horário</li>
+        </ul>
+
+        <h3 style="margin-top:20px;">3. Para que usamos esses dados</h3>
+        <ul style="padding-left:20px;">
+            <li>Organizar a agenda do salão e enviar lembretes/confirmações via WhatsApp</li>
+            <li>Processar pagamentos de assinatura, depósitos e cobranças, através do Mercado Pago</li>
+            <li>Calcular comissões de profissionais, quando esse recurso é usado pelo salão</li>
+            <li>Gerar relatórios financeiros e estatísticos pro dono do salão</li>
+        </ul>
+
+        <h3 style="margin-top:20px;">4. Com quem compartilhamos dados</h3>
+        <p>Não vendemos nem alugamos dados pessoais pra ninguém. Compartilhamos informações apenas com:</p>
+        <ul style="padding-left:20px;">
+            <li><strong>Mercado Pago</strong> — pra processar pagamentos (assinatura, depósitos, cobranças)</li>
+            <li><strong>Google Firebase / Google Cloud</strong> — infraestrutura que hospeda o banco de dados e os servidores do CorteZap</li>
+        </ul>
+
+        <h3 style="margin-top:20px;">5. Por quanto tempo guardamos os dados</h3>
+        <p>Os dados ficam armazenados enquanto a conta do salão estiver ativa no CorteZap. Se o salão encerrar a conta, pode solicitar a exclusão dos dados através do suporte.</p>
+
+        <h3 style="margin-top:20px;">6. Segurança</h3>
+        <p>Os dados ficam protegidos por regras de acesso que garantem que cada salão só enxerga os próprios dados — nunca os de outro salão. Informações sensíveis, como tokens de pagamento, ficam bloqueadas até pro próprio dono do salão, acessíveis só pelos sistemas internos do CorteZap.</p>
+
+        <h3 style="margin-top:20px;">7. Seus direitos (LGPD)</h3>
+        <p>Qualquer titular de dados (dono de salão ou cliente final) pode solicitar, a qualquer momento:</p>
+        <ul style="padding-left:20px;">
+            <li>Confirmação de quais dados temos sobre você</li>
+            <li>Correção de dados incorretos ou desatualizados</li>
+            <li>Exclusão dos seus dados</li>
+            <li>Informação sobre com quem seus dados foram compartilhados</li>
+        </ul>
+        <p>Pra exercer qualquer um desses direitos, entre em contato pelo WhatsApp de suporte do CorteZap (disponível em Perfil → Suporte, dentro do app).</p>
+
+        <h3 style="margin-top:20px;">8. Menores de idade</h3>
+        <p>O CorteZap não é direcionado a menores de 18 anos como usuários da plataforma (donos de salão). Dados de clientes finais menores de idade só devem ser cadastrados pelo salão com o consentimento do responsável legal.</p>
+
+        <h3 style="margin-top:20px;">9. Alterações nesta política</h3>
+        <p>Podemos atualizar esta política de vez em quando. A data da última atualização sempre aparece no topo desta página.</p>
+
+        <p style="margin-top:24px; text-align:center;">
+            <a href="javascript:history.back()" style="color:var(--primary, #2c3e50); font-weight:600;">← Voltar</a>
+        </p>
+    </div>
+
     <div id="block-overlay" class="block-overlay" onclick="this.classList.remove('active')">
         <div class="card" style="max-width:360px; text-align:center; border:2px solid #d4af37;" onclick="event.stopPropagation()">
             <i class="fas fa-lock" style="font-size: 2.5rem; color: #d4af37; margin-bottom: 12px; display:block;"></i>
@@ -2228,7 +2298,9 @@
                             <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Cálculo automático de comissão</td><td style="text-align:center; color:#e74c3c;">❌</td><td style="text-align:center;">✅</td></tr>
                             <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Folha de pagamento (CLT) com exportação</td><td style="text-align:center; color:#e74c3c;">❌</td><td style="text-align:center;">✅</td></tr>
                             <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Cobrança automática de aluguel de cadeira</td><td style="text-align:center; color:#e74c3c;">❌</td><td style="text-align:center;">✅</td></tr>
-                            <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Link de pagamento automático (Mercado Pago)</td><td style="text-align:center; color:#888;">—</td><td style="text-align:center;">✅</td></tr>
+                            <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Link de pagamento pro cliente (Mercado Pago)</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+                            <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">QR Code Pix na hora (cliente presente)</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+                            <tr style="border-top:1px solid #2a2a2a;"><td style="padding:8px 10px; color:#ddd;">Link de agendamento online (cliente marca sozinho)</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -2263,6 +2335,25 @@
                 </div>
             </div>
 
+            <!-- Card do link de agendamento público (cliente marca sozinho) -->
+            <div class="card-barber" style="margin-top:15px;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <i class="fas fa-calendar-check" style="font-size:1.3rem; color:var(--primary);"></i>
+                    <div>
+                        <h3 style="margin:0; font-size:1rem;">Seu Link de Agendamento</h3>
+                        <p style="margin:0; font-size:0.72rem; color:#888;">Cliente marca sozinho, sem precisar chamar no WhatsApp</p>
+                    </div>
+                </div>
+                <p id="link-agendamento-publico-texto" style="font-size:0.72rem; word-break:break-all; background:rgba(0,0,0,0.1); padding:10px; border-radius:8px; margin-bottom:10px;"></p>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="copiarLinkAgendamentoPublico()" style="flex:1; background:#555; color:#fff; border:none; border-radius:8px; padding:10px; font-size:0.8rem; font-weight:600; cursor:pointer;"><i class="fas fa-copy"></i> Copiar</button>
+                    <button onclick="compartilharLinkAgendamentoPublico()" style="flex:1; background:#25d366; color:#fff; border:none; border-radius:8px; padding:10px; font-size:0.8rem; font-weight:600; cursor:pointer;"><i class="fab fa-whatsapp"></i> Compartilhar</button>
+                </div>
+                <p style="font-size:0.68rem; color:#666; margin-top:8px;">
+                    Coloca esse link no bio do Instagram, no status do WhatsApp, ou manda direto pro cliente.
+                </p>
+            </div>
+
             <!-- Card de Suporte -->
             <div class="card-barber" style="margin-top:15px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
@@ -2290,6 +2381,9 @@
                     align-items:center; justify-content:center; gap:8px; margin-top:10px;">
                     <i class="fas fa-question-circle" style="font-size:1.1rem;"></i> Perguntas Frequentes / Ajuda
                 </button>
+                <p style="text-align:center; margin-top:10px;">
+                    <a href="?privacidade=1" target="_blank" style="font-size:0.72rem; color:#888;">Política de Privacidade</a>
+                </p>
             </div>
 
             <!-- Expediente -->
@@ -2409,6 +2503,14 @@
                     <summary>Como o cliente paga esse link?</summary>
                     <p>Ele abre o link, escolhe Pix, cartão de crédito ou débito, e paga direto numa página do Mercado Pago — sem precisar instalar nada nem ter conta lá. Assim que o pagamento é aprovado, a cobrança muda pra "Pago" sozinha na sua lista.</p>
                 </details>
+                <details class="faq-item" data-video-id="" data-faq-id="mp-qrcode">
+                    <summary>E o QR Code, quando uso em vez do link?</summary>
+                    <p>O <strong>Link</strong> é melhor pra cliente ausente ou que vai pagar no cartão. O <strong>QR Code Pix</strong> é melhor com o cliente presente na hora — ele escaneia com o app do banco dele e o pagamento cai na hora, sem precisar abrir nenhum link. A tela atualiza sozinha assim que o Pix é aprovado.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="mp-taxa-cortezap">
+                    <summary>Tem alguma taxa nessas cobranças?</summary>
+                    <p>Sim, duas: a taxa do próprio Mercado Pago (que existe em qualquer venda, com ou sem o CorteZap) e uma taxa de 1% do CorteZap sobre o valor, aplicada automaticamente pelo Link de Pagamento. Ambas aparecem descontadas direto no extrato do Mercado Pago — você não precisa calcular nem pagar nada separado.</p>
+                </details>
                 <details class="faq-item" data-video-id="" data-faq-id="mp-precisa-maquininha">
                     <summary>Preciso de maquininha pra isso funcionar?</summary>
                     <p>Não. É tudo pela internet — Pix ou cartão digitado na hora pelo cliente. Nenhum equipamento físico é necessário.</p>
@@ -2419,7 +2521,35 @@
                 </details>
                 <details class="faq-item" data-video-id="" data-faq-id="mp-e-premium">
                     <summary>Isso é Premium?</summary>
-                    <p>Sim. Conectar conta e gerar links de cobrança são recursos exclusivos do Plano Premium.</p>
+                    <p>Não, esse recurso é liberado pra todos os planos, inclusive o Básico. Só precisa conectar sua conta do Mercado Pago primeiro.</p>
+                </details>
+            </div>
+
+            <div class="card faq-grupo">
+                <h4>🔗 Agendamento Online (Link Público)</h4>
+                <details class="faq-item" data-video-id="" data-faq-id="agpub-o-que-e">
+                    <summary>O que é o link de agendamento público?</summary>
+                    <p>É um link próprio do seu salão onde o cliente escolhe o serviço, o profissional e o horário, e marca sozinho — sem precisar chamar no WhatsApp nem esperar você responder.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="agpub-onde-pegar">
+                    <summary>Onde encontro o meu link?</summary>
+                    <p>Em <strong>Perfil → Seu Link de Agendamento</strong>. Tem botão de copiar e de compartilhar direto no WhatsApp. Coloca esse link no bio do Instagram, no status do WhatsApp, ou manda pros seus clientes.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="agpub-deposito">
+                    <summary>O cliente precisa pagar alguma coisa pra marcar?</summary>
+                    <p>Sim, o mesmo depósito de 30% que já existe no agendamento manual — pra reduzir falta. Ele paga via Pix automático (QR Code), e o horário só fica confirmado depois que o Pix cai. Isso também exige que você já tenha conectado sua conta do Mercado Pago.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="agpub-reserva-temporaria">
+                    <summary>O que acontece se o cliente escolher um horário e não pagar?</summary>
+                    <p>O horário fica reservado por 10 minutos, esperando o Pix. Se não pagar nesse prazo, a reserva expira sozinha e o horário libera de novo pra outro cliente — sem você precisar fazer nada.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="agpub-aparece-na-agenda">
+                    <summary>Esse agendamento aparece na minha agenda normal?</summary>
+                    <p>Sim, assim que o depósito é pago, ele aparece na tela de Início junto com os outros, igual qualquer agendamento feito por você.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="agpub-e-premium">
+                    <summary>Isso é Premium?</summary>
+                    <p>Não, liberado pra todos os planos.</p>
                 </details>
             </div>
 
@@ -3952,6 +4082,9 @@
                 }
                 document.getElementById('perfil-plano').value = textoPlano;
                 atualizarStatusConexaoMP(!!dados.mpConectado);
+                const linkPublico = `https://rodrigoextra7-cell.github.io/CorteZap/?agendar=${auth.currentUser.uid}`;
+                const elLinkPublico = document.getElementById('link-agendamento-publico-texto');
+                if (elLinkPublico) elLinkPublico.innerText = linkPublico;
 
                 document.getElementById('nome-salao-topo').innerText = nomeSalao;
                 document.getElementById('perfil-abertura').value = dados.abertura || "08:00";
@@ -4796,6 +4929,21 @@
             }
         };
 
+        window.copiarLinkAgendamentoPublico = () => {
+            const texto = document.getElementById('link-agendamento-publico-texto')?.innerText;
+            if (!texto) return;
+            navigator.clipboard.writeText(texto)
+                .then(() => showToast('Link copiado!'))
+                .catch(() => showToast('Não foi possível copiar. Copie manualmente.', true));
+        };
+
+        window.compartilharLinkAgendamentoPublico = () => {
+            const texto = document.getElementById('link-agendamento-publico-texto')?.innerText;
+            if (!texto) return;
+            const mensagem = `Agende seu horário direto por aqui: ${texto}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(mensagem)}`, '_blank');
+        };
+
         function atualizarStatusConexaoMP(conectado) {
             const texto = document.getElementById('mp-conexao-status-texto');
             const btnConectar = document.getElementById('btn-mp-conectar');
@@ -5268,8 +5416,12 @@
         // ─── Detecta o link público ANTES de qualquer checagem de login ──────
         const parametrosUrlPublico = new URLSearchParams(window.location.search);
         const salonIdParaAgendarPublico = parametrosUrlPublico.get('agendar');
+        const mostrarPrivacidade = parametrosUrlPublico.get('privacidade');
 
-        if (salonIdParaAgendarPublico) {
+        if (mostrarPrivacidade) {
+            document.getElementById('screen-auth').style.display = 'none';
+            document.getElementById('tela-privacidade').style.display = 'block';
+        } else if (salonIdParaAgendarPublico) {
             iniciarAgendamentoPublico(salonIdParaAgendarPublico);
         } else {
             onAuthStateChanged(auth, async (user) => {
