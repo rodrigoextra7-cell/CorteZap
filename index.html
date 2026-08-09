@@ -1569,24 +1569,38 @@
             </div>
 
             <div class="card" id="publico-passo-servico">
-                <h4>1. Escolha o serviço</h4>
+                <h4>1. Escolha o(s) serviço(s)</h4>
+                <p style="font-size:0.72rem; color:#888; margin:-6px 0 10px;">Você pode marcar mais de um serviço no mesmo agendamento.</p>
                 <div id="publico-lista-servicos"></div>
+                <div id="publico-total-servicos" style="display:none; margin-top:12px; font-size:0.85rem; color:var(--primary,#2c3e50); background:rgba(0,0,0,0.04); padding:10px; border-radius:8px;"></div>
+                <button id="publico-btn-continuar-servico" class="btn" onclick="continuarParaProfissionalPublico()" style="display:none; background:var(--secondary); width:100%; margin-top:12px;">Continuar</button>
             </div>
 
             <div class="card" id="publico-passo-profissional" style="display:none; margin-top:14px;">
-                <h4>2. Escolha o profissional</h4>
-                <div id="publico-lista-profissionais"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="margin:0;">2. Escolha o profissional</h4>
+                    <button onclick="voltarParaServicoPublico()" style="background:none; border:none; color:var(--primary); font-size:0.75rem; cursor:pointer; padding:4px;">← Voltar</button>
+                </div>
+                <p style="font-size:0.72rem; color:#888; margin:4px 0 10px;">Se os serviços forem com pessoas diferentes, é só trocar em cada um.</p>
+                <div id="publico-lista-profissionais" style="margin-top:6px; display:flex; flex-direction:column; gap:12px;"></div>
+                <button class="btn" onclick="continuarParaHorarioPublico()" style="background:var(--secondary); width:100%; margin-top:14px;">Continuar</button>
             </div>
 
             <div class="card" id="publico-passo-horario" style="display:none; margin-top:14px;">
-                <h4>3. Escolha data e horário</h4>
-                <input type="date" id="publico-input-data" class="input-padrao" onchange="carregarHorariosPublico()">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="margin:0;">3. Escolha data e horário</h4>
+                    <button onclick="voltarParaProfissionalPublico()" style="background:none; border:none; color:var(--primary); font-size:0.75rem; cursor:pointer; padding:4px;">← Voltar</button>
+                </div>
+                <input type="date" id="publico-input-data" class="input-padrao" onchange="carregarHorariosPublico()" style="margin-top:10px;">
                 <div id="publico-lista-horarios" style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px;"></div>
             </div>
 
             <div class="card" id="publico-passo-dados" style="display:none; margin-top:14px;">
-                <h4>4. Seus dados</h4>
-                <input type="text" id="publico-nome-cliente" class="input-padrao" placeholder="Seu nome" style="margin-bottom:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="margin:0;">4. Seus dados</h4>
+                    <button onclick="voltarParaHorarioPublico()" style="background:none; border:none; color:var(--primary); font-size:0.75rem; cursor:pointer; padding:4px;">← Voltar</button>
+                </div>
+                <input type="text" id="publico-nome-cliente" class="input-padrao" placeholder="Seu nome" style="margin:10px 0 8px;">
                 <input type="tel" id="publico-telefone-cliente" class="input-padrao" placeholder="WhatsApp (com DDD)" style="margin-bottom:12px;">
                 <div id="publico-resumo" style="font-size:0.85rem; color:#888; margin-bottom:14px; line-height:1.6;"></div>
                 <button class="btn" onclick="confirmarAgendamentoPublico()" style="background:var(--secondary); width:100%;">Confirmar Agendamento</button>
@@ -2064,6 +2078,11 @@
                         <option value="mensal">Mensal</option>
                     </select>
                     <select id="worker-dia-vencimento" class="input-padrao" style="margin-top:8px;"></select>
+                </div>
+
+                <label style="font-size:0.78rem; color:#888; display:block; margin:10px 0 4px;">Quais serviços esse profissional faz? <span style="font-weight:400;">(deixe tudo desmarcado pra ele fazer qualquer serviço)</span></label>
+                <div id="worker-servicos-checkboxes" style="display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto; border:1px solid rgba(0,0,0,0.1); border-radius:8px; padding:8px;">
+                    <p style="font-size:0.75rem; color:#888; margin:0;">Cadastre os serviços abaixo primeiro pra poder marcar aqui.</p>
                 </div>
 
                 <button class="btn" onclick="salvarProfissional()" style="background: var(--secondary); margin-top:10px;">
@@ -3660,37 +3679,76 @@
                         concluidoEm: Timestamp.now()
                     };
 
-                    // Calcula a comissão do profissional, se ele estiver cadastrado
-                    // com um profissionalId (agendamentos antigos, sem esse campo,
-                    // ficam sem cálculo — o valor total continua contabilizado normalmente).
-                    if (agendamentoSelecionado.profissionalId) {
+                    // Monta a lista de itens a comissionar: se o agendamento tem
+                    // "itens" de verdade (um ou mais profissionais diferentes),
+                    // calcula a comissão de CADA um separadamente, respeitando o
+                    // preço e o profissional daquele serviço específico. Um
+                    // agendamento antigo (1 profissional só, sem "itens") cai no
+                    // fallback: um item único com o profissionalId e o valor total.
+                    const itensParaComissao = (Array.isArray(agendamentoSelecionado.itens) && agendamentoSelecionado.itens.length > 0)
+                        ? agendamentoSelecionado.itens
+                        : (agendamentoSelecionado.profissionalId
+                            ? [{ profissionalId: agendamentoSelecionado.profissionalId, preco: agendamentoSelecionado.precoTotal || 0, custoProduto: agendamentoSelecionado.custoProdutoTotal || 0 }]
+                            : []);
+
+                    if (itensParaComissao.length > 0) {
                         try {
                             const salaoSnap = await getDoc(doc(db, 'saloes', auth.currentUser.uid));
                             const descontarCustoProduto = salaoSnap.exists() ? (salaoSnap.data().descontarCustoProduto || false) : false;
 
-                            const profSnap = await getDoc(doc(db, 'funcionarios', agendamentoSelecionado.profissionalId));
-                            if (profSnap.exists()) {
-                                const remuneracao = profSnap.data().remuneracao || { tipo: 'parceiro', comissaoPercentual: 0 };
-                                const precoTotal = agendamentoSelecionado.precoTotal || 0;
-                                const custoProdutoTotal = agendamentoSelecionado.custoProdutoTotal || 0;
+                            const cacheProfissionais = {};
+                            const itensComComissao = [];
+                            let comissaoTotal = 0;
+                            let valorSalaoTotal = 0;
 
-                                if (remuneracao.tipo === 'aluguel') {
-                                    // Profissional de aluguel de cadeira fica com 100% do valor;
-                                    // o aluguel é cobrado à parte, não por atendimento.
-                                    dadosConclusao.comissaoProfissional = precoTotal;
-                                    dadosConclusao.valorSalao = 0;
-                                } else {
-                                    // parceiro ou clt: comissão percentual sobre o valor total,
-                                    // descontando o custo de produto se o salão optou por isso
-                                    const baseCalculo = descontarCustoProduto ? Math.max(0, precoTotal - custoProdutoTotal) : precoTotal;
-                                    const pct = (remuneracao.comissaoPercentual || 0) / 100;
-                                    const comissao = Math.round(baseCalculo * pct * 100) / 100;
-                                    dadosConclusao.comissaoProfissional = comissao;
-                                    dadosConclusao.valorSalao = Math.round((precoTotal - comissao) * 100) / 100;
+                            for (const item of itensParaComissao) {
+                                if (!item.profissionalId) { itensComComissao.push(item); continue; }
+                                if (!(item.profissionalId in cacheProfissionais)) {
+                                    const profSnap = await getDoc(doc(db, 'funcionarios', item.profissionalId));
+                                    cacheProfissionais[item.profissionalId] = profSnap.exists() ? profSnap.data() : null;
                                 }
-                                dadosConclusao.tipoRemuneracaoNoMomento = remuneracao.tipo;
-                                dadosConclusao.custoProdutoDescontado = descontarCustoProduto;
+                                const dadosProf = cacheProfissionais[item.profissionalId];
+                                if (!dadosProf) { itensComComissao.push(item); continue; }
+
+                                const remuneracao = dadosProf.remuneracao || { tipo: 'parceiro', comissaoPercentual: 0 };
+                                const precoItem = item.preco || 0;
+                                const custoItem = item.custoProduto || 0;
+
+                                let comissaoItem, valorSalaoItem;
+                                if (remuneracao.tipo === 'aluguel') {
+                                    // Profissional de aluguel de cadeira fica com 100% do valor
+                                    // daquele serviço; o aluguel é cobrado à parte, não por atendimento.
+                                    comissaoItem = precoItem;
+                                    valorSalaoItem = 0;
+                                } else {
+                                    // parceiro ou clt: comissão percentual sobre o valor DAQUELE
+                                    // serviço, descontando o custo de produto se o salão optou por isso
+                                    const baseCalculo = descontarCustoProduto ? Math.max(0, precoItem - custoItem) : precoItem;
+                                    const pct = (remuneracao.comissaoPercentual || 0) / 100;
+                                    comissaoItem = Math.round(baseCalculo * pct * 100) / 100;
+                                    valorSalaoItem = Math.round((precoItem - comissaoItem) * 100) / 100;
+                                }
+
+                                comissaoTotal += comissaoItem;
+                                valorSalaoTotal += valorSalaoItem;
+                                itensComComissao.push({
+                                    ...item,
+                                    comissaoProfissional: comissaoItem,
+                                    valorSalao: valorSalaoItem,
+                                    tipoRemuneracaoNoMomento: remuneracao.tipo,
+                                });
                             }
+
+                            // Só regrava "itens" se o agendamento realmente tinha itens
+                            // (não sobrescreve agendamentos antigos sem essa estrutura)
+                            if (Array.isArray(agendamentoSelecionado.itens) && agendamentoSelecionado.itens.length > 0) {
+                                dadosConclusao.itens = itensComComissao;
+                            }
+                            // Totais mantidos pra compatibilidade com telas/relatórios
+                            // que só leem o valor consolidado do agendamento inteiro
+                            dadosConclusao.comissaoProfissional = Math.round(comissaoTotal * 100) / 100;
+                            dadosConclusao.valorSalao = Math.round(valorSalaoTotal * 100) / 100;
+                            dadosConclusao.custoProdutoDescontado = descontarCustoProduto;
                         } catch (e) {
                             console.error('Erro ao calcular comissão (agendamento salvo normalmente mesmo assim):', e);
                         }
@@ -4193,6 +4251,7 @@
             if (paginaId === 'page-settings') {
                 await carregarListaConfig('funcionarios', 'list-workers-config');
                 await carregarListaConfig('servicos', 'list-services-config');
+                await carregarServicosParaSelecaoWorker();
             }
             if (paginaId === 'page-reports') { await carregarRelatorios(); await carregarCobrancasAluguel(); await carregarFolhaPagamento(); await carregarCobrancasClientes(); }
             if (paginaId === 'page-faq') await carregarVideosFaq();
@@ -4530,10 +4589,21 @@
                 const comissaoPorProfissional = {};
                 agendSnap.forEach(d => {
                     const a = d.data();
-                    if (!a.profissionalId || !a.concluidoEm) return;
+                    if (!a.concluidoEm) return;
                     const dataConclusao = a.concluidoEm.toDate ? a.concluidoEm.toDate() : new Date(a.concluidoEm);
                     if (dataConclusao < inicioMes || dataConclusao >= fimMes) return;
-                    comissaoPorProfissional[a.profissionalId] = (comissaoPorProfissional[a.profissionalId] || 0) + (a.comissaoProfissional || 0);
+
+                    if (Array.isArray(a.itens) && a.itens.length > 0) {
+                        // Agendamento com um ou mais profissionais — cada item já
+                        // carrega a comissão calculada especificamente pra ele
+                        a.itens.forEach(item => {
+                            if (!item.profissionalId) return;
+                            comissaoPorProfissional[item.profissionalId] = (comissaoPorProfissional[item.profissionalId] || 0) + (item.comissaoProfissional || 0);
+                        });
+                    } else if (a.profissionalId) {
+                        // Agendamento antigo estilo: 1 profissional só pro valor inteiro
+                        comissaoPorProfissional[a.profissionalId] = (comissaoPorProfissional[a.profissionalId] || 0) + (a.comissaoProfissional || 0);
+                    }
                 });
 
                 // 3. Monta a folha final
@@ -5192,8 +5262,8 @@
         const publicoEstado = {
             salonId: null,
             dadosSalao: null,
-            servicoSelecionado: null,
-            profissionalSelecionado: null,
+            servicosSelecionados: [], // lista de serviços marcados na etapa 1
+            itensAgendamento: null,   // [{servicoId, servicoNome, profissionalId, profissionalNome, duracaoMin, preco}] montado na etapa 2
             dataSelecionada: null,
             horarioSelecionado: null,
             agendamentoId: null,
@@ -5203,6 +5273,16 @@
         function formatarDataBRPublico(dataISO) {
             const [ano, mes, dia] = dataISO.split('-');
             return `${dia}/${mes}/${ano}`;
+        }
+
+        function duracaoTotalPublico() {
+            return publicoEstado.servicosSelecionados.reduce((soma, s) => soma + (s.duracao || 0), 0);
+        }
+        function precoTotalPublico() {
+            return publicoEstado.servicosSelecionados.reduce((soma, s) => soma + (s.preco || 0), 0);
+        }
+        function nomesServicosPublico() {
+            return publicoEstado.servicosSelecionados.map(s => s.nome).join(', ');
         }
 
         async function iniciarAgendamentoPublico(salonId) {
@@ -5237,28 +5317,111 @@
             }
 
             document.getElementById('publico-lista-servicos').innerHTML = dados.servicos.map(s => `
-                <div class="admin-list-item" style="cursor:pointer;" onclick="selecionarServicoPublico('${s.id}')">
+                <label class="admin-list-item" for="publico-servico-${s.id}" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+                    <input type="checkbox" id="publico-servico-${s.id}" onchange="toggleServicoPublico('${s.id}', this.checked)" style="width:18px; height:18px; flex-shrink:0; accent-color:var(--primary,#2c3e50);">
                     <span><strong>${s.nome}</strong><br><span style="font-size:0.75rem;color:#888;">R$ ${s.preco.toFixed(2)} · ${s.duracao} min</span></span>
-                </div>
+                </label>
             `).join('') || '<p style="color:#888; font-size:0.8rem;">Nenhum serviço cadastrado ainda.</p>';
         }
 
-        window.selecionarServicoPublico = (servicoId) => {
-            publicoEstado.servicoSelecionado = publicoEstado.dadosSalao.servicos.find(s => s.id === servicoId);
+        window.toggleServicoPublico = (servicoId, marcado) => {
+            if (marcado) {
+                if (!publicoEstado.servicosSelecionados.find(s => s.id === servicoId)) {
+                    const servico = publicoEstado.dadosSalao.servicos.find(s => s.id === servicoId);
+                    if (servico) publicoEstado.servicosSelecionados.push(servico);
+                }
+            } else {
+                publicoEstado.servicosSelecionados = publicoEstado.servicosSelecionados.filter(s => s.id !== servicoId);
+            }
+            atualizarTotalServicosPublico();
+        };
+
+        function atualizarTotalServicosPublico() {
+            const totalEl = document.getElementById('publico-total-servicos');
+            const btnContinuar = document.getElementById('publico-btn-continuar-servico');
+            const qtd = publicoEstado.servicosSelecionados.length;
+            if (qtd === 0) {
+                totalEl.style.display = 'none';
+                btnContinuar.style.display = 'none';
+                return;
+            }
+            totalEl.style.display = 'block';
+            totalEl.innerHTML = `<strong>${qtd} serviço${qtd > 1 ? 's' : ''} selecionado${qtd > 1 ? 's' : ''}</strong> · Total: R$ ${precoTotalPublico().toFixed(2)} · ${duracaoTotalPublico()} min`;
+            btnContinuar.style.display = 'block';
+        }
+
+        window.continuarParaProfissionalPublico = () => {
+            if (publicoEstado.servicosSelecionados.length === 0) { showToast('Escolha ao menos um serviço', true); return; }
             const passoProf = document.getElementById('publico-passo-profissional');
             passoProf.style.display = 'block';
 
-            document.getElementById('publico-lista-profissionais').innerHTML = publicoEstado.dadosSalao.profissionais.map(p => `
-                <div class="admin-list-item" style="cursor:pointer;" onclick="selecionarProfissionalPublico('${p.id}')">
-                    <div class="worker-info"><img src="${p.foto || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}"><span><strong>${p.nome}</strong> ${p.especialidade ? '(' + p.especialidade + ')' : ''}</span></div>
-                </div>
-            `).join('') || '<p style="color:#888; font-size:0.8rem;">Nenhum profissional cadastrado ainda.</p>';
+            // Pra cada serviço marcado, monta um seletor só com os profissionais
+            // capazes de fazer aquele serviço (profissional sem lista de serviços
+            // cadastrada é tratado como "faz tudo", pra não quebrar salões que já
+            // usavam o sistema antes dessa opção existir).
+            document.getElementById('publico-lista-profissionais').innerHTML = publicoEstado.servicosSelecionados.map(servico => {
+                const capazes = publicoEstado.dadosSalao.profissionais.filter(p =>
+                    !p.servicosIds || p.servicosIds.length === 0 || p.servicosIds.includes(servico.id)
+                );
+                if (capazes.length === 0) {
+                    return `<div><strong>${servico.nome}</strong><p style="color:#e74c3c; font-size:0.78rem; margin-top:4px;">Nenhum profissional disponível pra esse serviço.</p></div>`;
+                }
+                return `
+                    <div>
+                        <label style="font-size:0.85rem; font-weight:600;">${servico.nome}</label>
+                        <select id="publico-prof-servico-${servico.id}" class="input-padrao" style="margin-top:6px;">
+                            ${capazes.map(p => `<option value="${p.id}">${p.nome}${p.especialidade ? ' (' + p.especialidade + ')' : ''}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            }).join('') || '<p style="color:#888; font-size:0.8rem;">Nenhum profissional cadastrado ainda.</p>';
 
             passoProf.scrollIntoView({ behavior: 'smooth' });
         };
 
-        window.selecionarProfissionalPublico = (profId) => {
-            publicoEstado.profissionalSelecionado = publicoEstado.dadosSalao.profissionais.find(p => p.id === profId);
+        window.voltarParaServicoPublico = () => {
+            document.getElementById('publico-passo-profissional').style.display = 'none';
+            document.getElementById('publico-passo-horario').style.display = 'none';
+            document.getElementById('publico-passo-dados').style.display = 'none';
+            document.getElementById('publico-passo-servico').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.voltarParaProfissionalPublico = () => {
+            document.getElementById('publico-passo-horario').style.display = 'none';
+            document.getElementById('publico-passo-dados').style.display = 'none';
+            document.getElementById('publico-passo-profissional').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.voltarParaHorarioPublico = () => {
+            document.getElementById('publico-passo-dados').style.display = 'none';
+            document.getElementById('publico-passo-horario').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // Monta a lista de itens (serviço + profissional escolhido pra ele) —
+        // usada tanto pra buscar horários quanto pra confirmar o agendamento
+        function montarItensSelecionadosPublico() {
+            return publicoEstado.servicosSelecionados.map(servico => {
+                const select = document.getElementById(`publico-prof-servico-${servico.id}`);
+                const profId = select ? select.value : '';
+                const profissional = publicoEstado.dadosSalao.profissionais.find(p => p.id === profId);
+                return {
+                    servicoId: servico.id,
+                    servicoNome: servico.nome,
+                    profissionalId: profId,
+                    profissionalNome: profissional ? profissional.nome : '',
+                    duracaoMin: servico.duracao,
+                    preco: servico.preco,
+                };
+            });
+        }
+
+        window.continuarParaHorarioPublico = () => {
+            const itens = montarItensSelecionadosPublico();
+            if (itens.some(it => !it.profissionalId)) {
+                showToast('Escolha um profissional pra cada serviço', true);
+                return;
+            }
+            document.getElementById('publico-passo-dados').style.display = 'none';
             const passoHorario = document.getElementById('publico-passo-horario');
             passoHorario.style.display = 'block';
 
@@ -5277,18 +5440,24 @@
             const container = document.getElementById('publico-lista-horarios');
             container.innerHTML = '<p style="grid-column:1/-1; color:#888; font-size:0.8rem;">Carregando horários...</p>';
             try {
-                const url = `${API_BASE_URL}/publico/horarios?salonId=${publicoEstado.salonId}&profissionalId=${publicoEstado.profissionalSelecionado.id}&data=${data}&duracao=${publicoEstado.servicoSelecionado.duracao}`;
-                const resp = await fetch(url);
-                const resultado = await resp.json();
-                if (!resultado.horarios || resultado.horarios.length === 0) {
+                const itens = montarItensSelecionadosPublico();
+                const resp = await fetch(`${API_BASE_URL}/publico/horariosSequencial`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ salonId: publicoEstado.salonId, data, itens }),
+                });
+                const dados = await resp.json();
+                if (!resp.ok) throw new Error(dados.erro || 'Erro ao buscar horários');
+                publicoEstado.itensAgendamento = itens; // guarda pra usar na confirmação
+                if (dados.horarios.length === 0) {
                     container.innerHTML = '<p style="grid-column:1/-1; color:#888; font-size:0.8rem;">Nenhum horário livre nesse dia.</p>';
                     return;
                 }
-                container.innerHTML = resultado.horarios.map(h => `
-                    <button onclick="selecionarHorarioPublico('${h}')" style="padding:10px; border-radius:8px; border:1px solid var(--primary); background:transparent; color:var(--primary); cursor:pointer; font-weight:600;">${h}</button>
+                container.innerHTML = dados.horarios.map(h => `
+                    <button onclick="selecionarHorarioPublico('${h}')" style="padding:10px; border-radius:8px; border:1px solid var(--primary,#2c3e50); background:none; color:var(--primary,#2c3e50); font-weight:600; cursor:pointer;">${h}</button>
                 `).join('');
             } catch (err) {
-                container.innerHTML = '<p style="grid-column:1/-1; color:#e74c3c; font-size:0.8rem;">Erro ao carregar horários.</p>';
+                container.innerHTML = `<p style="grid-column:1/-1; color:#e74c3c; font-size:0.8rem;">${err.message}</p>`;
             }
         };
 
@@ -5296,10 +5465,12 @@
             publicoEstado.horarioSelecionado = horario;
             const passoDados = document.getElementById('publico-passo-dados');
             passoDados.style.display = 'block';
+            const itens = publicoEstado.itensAgendamento || montarItensSelecionadosPublico();
+            const linhasServicos = itens.map(it => `${it.servicoNome} com ${it.profissionalNome}`).join('<br>');
             document.getElementById('publico-resumo').innerHTML = `
-                <strong>${publicoEstado.servicoSelecionado.nome}</strong> com <strong>${publicoEstado.profissionalSelecionado.nome}</strong><br>
+                ${linhasServicos}<br>
                 ${formatarDataBRPublico(publicoEstado.dataSelecionada)} às ${horario}<br>
-                Valor: R$ ${publicoEstado.servicoSelecionado.preco.toFixed(2)}
+                Valor total: R$ ${precoTotalPublico().toFixed(2)}
             `;
             passoDados.scrollIntoView({ behavior: 'smooth' });
         };
@@ -5320,8 +5491,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         salonId: publicoEstado.salonId,
-                        servicoId: publicoEstado.servicoSelecionado.id,
-                        profissionalId: publicoEstado.profissionalSelecionado.id,
+                        itens: (publicoEstado.itensAgendamento || montarItensSelecionadosPublico()).map(it => ({
+                            servicoId: it.servicoId,
+                            profissionalId: it.profissionalId,
+                        })),
                         data: publicoEstado.dataSelecionada,
                         horario: publicoEstado.horarioSelecionado,
                         nomeCliente: nome,
@@ -5405,8 +5578,10 @@
             document.getElementById('publico-passo-deposito').style.display = 'none';
             const passoSucesso = document.getElementById('publico-passo-sucesso');
             passoSucesso.style.display = 'block';
+            const itens = publicoEstado.itensAgendamento || montarItensSelecionadosPublico();
+            const linhasServicos = itens.map(it => `${it.servicoNome} com ${it.profissionalNome}`).join('<br>');
             document.getElementById('publico-resumo-final').innerHTML = `
-                <strong>${publicoEstado.servicoSelecionado.nome}</strong> com <strong>${publicoEstado.profissionalSelecionado.nome}</strong><br>
+                ${linhasServicos}<br>
                 ${formatarDataBRPublico(publicoEstado.dataSelecionada)} às ${publicoEstado.horarioSelecionado}<br><br>
                 Te esperamos! 🎉
             `;
@@ -5772,6 +5947,24 @@
             if (tipo === 'aluguel') atualizarLabelVencimento('worker');
         };
 
+        async function carregarServicosParaSelecaoWorker() {
+            if (!auth.currentUser) return;
+            const container = document.getElementById('worker-servicos-checkboxes');
+            if (!container) return;
+            const q = query(collection(db, "servicos"), where("salonId", "==", auth.currentUser.uid));
+            const snap = await getDocs(q);
+            if (snap.empty) {
+                container.innerHTML = '<p style="font-size:0.75rem; color:#888; margin:0;">Cadastre os serviços abaixo primeiro pra poder marcar aqui.</p>';
+                return;
+            }
+            container.innerHTML = snap.docs.map(doc => `
+                <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+                    <input type="checkbox" class="worker-servico-check" value="${doc.id}" style="width:16px; height:16px;">
+                    ${doc.data().nomeServico}
+                </label>
+            `).join('');
+        }
+
         window.salvarProfissional = async () => {
             if (!acessoLiberadoGlobal) { showToast("🔒 Assinatura expirada.", true); return; }
             const nome = document.getElementById('worker-name').value.trim();
@@ -5792,6 +5985,8 @@
                 remuneracao.diaVencimento = parseInt(document.getElementById('worker-dia-vencimento').value) || 1;
             }
 
+            const servicosIds = Array.from(document.querySelectorAll('.worker-servico-check:checked')).map(cb => cb.value);
+
             try {
                 // A verificação de limite e a criação agora acontecem no backend
                 // (com Admin SDK), pra ninguém conseguir editar profissionaisAtivos
@@ -5803,7 +5998,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${idToken}`
                     },
-                    body: JSON.stringify({ nome, especialidade, remuneracao })
+                    body: JSON.stringify({ nome, especialidade, remuneracao, servicosIds })
                 });
                 const resultado = await resp.json();
 
@@ -5818,6 +6013,7 @@
                 showToast("Profissional adicionado!");
                 document.getElementById('worker-name').value = '';
                 document.getElementById('worker-skill').value = '';
+                document.querySelectorAll('.worker-servico-check:checked').forEach(cb => cb.checked = false);
                 await carregarListaConfig('funcionarios', 'list-workers-config');
                 await carregarProfissionaisAgendamento();
             } catch (err) { showToast("Erro ao salvar profissional: " + err.message, true); }
@@ -5839,6 +6035,7 @@
                 document.getElementById('service-cost-input').value = '';
                 await carregarListaConfig('servicos', 'list-services-config');
                 await carregarServicosAgendamento();
+                await carregarServicosParaSelecaoWorker();
             } catch (err) { showToast("Erro ao salvar serviço: " + err.message, true); }
         };
         
@@ -6641,4 +6838,4 @@
         }
     </script>
 </body>
-</html>             
+</html>
