@@ -802,16 +802,16 @@
         .theme-darkpremium-btn { background: #2ECC71; border: 2px solid #0D0F0E; }
         
         #screen-auth { 
-            height: 100vh; 
             background: linear-gradient(135deg, var(--secondary), var(--primary)); 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100%;
+            height: 100%;
             z-index: 1000;
+            overflow-y: auto;
         }
         .card { 
             background: var(--white); 
@@ -1410,7 +1410,7 @@
     </div>
     
     <!-- Tela de Cadastro - Trial 15 dias -->
-    <div id="screen-cadastro" style="display:none; height:100vh; background: linear-gradient(135deg, var(--secondary), var(--primary)); align-items:center; justify-content:center; position:fixed; top:0; left:0; width:100%; z-index:1001; overflow-y:auto;">
+    <div id="screen-cadastro" style="display:none; background: linear-gradient(135deg, var(--secondary), var(--primary)); align-items:center; justify-content:center; position:fixed; inset:0; width:100%; height:100%; z-index:1001; overflow-y:auto;">
         <div class="card" style="width:90%; max-width:380px; text-align:center; padding:30px 25px; margin:20px auto;">
             <div style="font-size:2.5rem; margin-bottom:10px;">🚀</div>
             <h2 style="color:var(--secondary); margin-bottom:5px; font-weight:800;">Teste Grátis por 15 Dias</h2>
@@ -2634,7 +2634,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, where, onSnapshot, orderBy, Timestamp, getDocs, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
@@ -5248,8 +5248,27 @@
         window.loginComGoogle = async () => {
             const errEl = document.getElementById('auth-error') || document.getElementById('cadastro-error');
             try {
+                // signInWithRedirect navega a própria página até o Google e volta —
+                // diferente de signInWithPopup, funciona dentro de WebViews embutidas
+                // (como a do Kodular), que não suportam popup de verdade.
                 const provider = new GoogleAuthProvider();
-                const resultado = await signInWithPopup(auth, provider);
+                await signInWithRedirect(auth, provider);
+                // A partir daqui a página está navegando para o Google; o resultado
+                // é tratado em processarRetornoLoginGoogle(), chamado no carregamento.
+            } catch (err) {
+                console.error('Erro ao iniciar login com Google:', err);
+                const msg = 'Não foi possível entrar com o Google. Tente novamente.';
+                if (errEl) errEl.innerText = msg;
+                showToast(msg, true);
+            }
+        };
+
+        // Processa o retorno do signInWithRedirect quando a página recarrega
+        // vinda do Google. Precisa rodar antes/junto do onAuthStateChanged.
+        async function processarRetornoLoginGoogle() {
+            try {
+                const resultado = await getRedirectResult(auth);
+                if (!resultado) return; // não veio de um redirect do Google
                 const user = resultado.user;
 
                 // Primeiro acesso via Google: ainda não existe documento do salão,
@@ -5276,20 +5295,17 @@
                 } else {
                     showToast('Login realizado com sucesso!');
                 }
-                if (errEl) errEl.innerText = '';
                 document.getElementById('screen-cadastro').style.display = 'none';
             } catch (err) {
-                // Usuário fechou o popup ou o navegador bloqueou — não é bem um
-                // "erro", então não mostra mensagem alarmante nesse caso
-                if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') return;
                 console.error('Erro no login com Google:', err);
+                const errEl = document.getElementById('auth-error') || document.getElementById('cadastro-error');
                 const msg = err.code === 'auth/account-exists-with-different-credential'
                     ? 'Este e-mail já está cadastrado com senha. Entre com e-mail e senha.'
                     : 'Não foi possível entrar com o Google. Tente novamente.';
                 if (errEl) errEl.innerText = msg;
                 showToast(msg, true);
             }
-        };
+        }
 
         window.esqueciSenha = async () => {
             const errEl = document.getElementById('auth-error');
@@ -5682,6 +5698,7 @@
         } else if (salonIdParaAgendarPublico) {
             iniciarAgendamentoPublico(salonIdParaAgendarPublico);
         } else {
+            processarRetornoLoginGoogle().finally(() => {
             onAuthStateChanged(auth, async (user) => {
                 if (user) { 
                 await checkSystemAccess(user); 
@@ -5697,6 +5714,7 @@
                 acessoLiberadoGlobal = false;
             }
         });
+            }); // fecha o .finally() do processarRetornoLoginGoogle()
         } // fecha o else { } do bloco "não é link de agendamento público"
 
         // Recalcula o trial automaticamente quando a aba/janela volta ao foco,
