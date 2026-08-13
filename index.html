@@ -802,16 +802,14 @@
         .theme-darkpremium-btn { background: #2ECC71; border: 2px solid #0D0F0E; }
         
         #screen-auth { 
+            inset: 0; 
             background: linear-gradient(135deg, var(--secondary), var(--primary)); 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             position: fixed;
-            inset: 0;
             width: 100%;
-            height: 100%;
             z-index: 1000;
-            overflow-y: auto;
         }
         .card { 
             background: var(--white); 
@@ -1410,7 +1408,7 @@
     </div>
     
     <!-- Tela de Cadastro - Trial 15 dias -->
-    <div id="screen-cadastro" style="display:none; background: linear-gradient(135deg, var(--secondary), var(--primary)); align-items:center; justify-content:center; position:fixed; inset:0; width:100%; height:100%; z-index:1001; overflow-y:auto;">
+    <div id="screen-cadastro" style="display:none; inset:0; background: linear-gradient(135deg, var(--secondary), var(--primary)); align-items:center; justify-content:center; position:fixed; width:100%; z-index:1001; overflow-y:auto;">
         <div class="card" style="width:90%; max-width:380px; text-align:center; padding:30px 25px; margin:20px auto;">
             <div style="font-size:2.5rem; margin-bottom:10px;">🚀</div>
             <h2 style="color:var(--secondary); margin-bottom:5px; font-weight:800;">Teste Grátis por 15 Dias</h2>
@@ -5245,67 +5243,76 @@
             } catch (err) { showToast("Erro ao salvar foto: " + err.message, true); progressBar.style.display = 'none'; }
         };
         
+        // Cria o documento do salão se ainda não existir (1º acesso via Google) —
+        // função separada porque agora precisa rodar tanto logo após o clique
+        // quanto depois que a página recarrega ao voltar do Google (redirect).
+        async function garantirDocumentoSalaoGoogle(user) {
+            const salaoRef = doc(db, 'saloes', user.uid);
+            const salaoSnap = await getDoc(salaoRef);
+            if (salaoSnap.exists()) return false;
+
+            const agora = new Date();
+            const expiracao = new Date(agora);
+            expiracao.setDate(expiracao.getDate() + 15);
+            await setDoc(salaoRef, {
+                nomeSalao: user.displayName || 'Meu Salão',
+                email: user.email || '',
+                whatsapp: '',
+                status: 'trial',
+                trialInicio: Timestamp.fromDate(agora),
+                trialExpiracao: Timestamp.fromDate(expiracao),
+                criadoEm: Timestamp.fromDate(agora),
+                plano: 'basico',
+            });
+            return true;
+        }
+
         window.loginComGoogle = async () => {
-            const errEl = document.getElementById('auth-error') || document.getElementById('cadastro-error');
             try {
-                // signInWithRedirect navega a própria página até o Google e volta —
-                // diferente de signInWithPopup, funciona dentro de WebViews embutidas
-                // (como a do Kodular), que não suportam popup de verdade.
+                // Usa redirect (navega a própria página até o Google e volta) em
+                // vez de popup — popup depende de window.open()+postMessage, que
+                // não funciona dentro da WebView do app (Kodular), fazendo o
+                // Android abrir o Google no Chrome externo e perder a ligação
+                // com o app. Redirect é só navegação normal, funciona dentro da WebView.
                 const provider = new GoogleAuthProvider();
                 await signInWithRedirect(auth, provider);
-                // A partir daqui a página está navegando para o Google; o resultado
-                // é tratado em processarRetornoLoginGoogle(), chamado no carregamento.
+                // A partir daqui a página vai navegar pro Google — o resto do
+                // fluxo (criar documento do salão, se for a 1ª vez) continua em
+                // "processarRetornoGoogle()", chamada quando a página recarrega.
             } catch (err) {
                 console.error('Erro ao iniciar login com Google:', err);
-                const msg = 'Não foi possível entrar com o Google. Tente novamente.';
+                const errEl = document.getElementById('auth-error') || document.getElementById('cadastro-error');
+                const msg = 'Não foi possível abrir o login do Google. Tente novamente.';
                 if (errEl) errEl.innerText = msg;
                 showToast(msg, true);
             }
         };
 
-        // Processa o retorno do signInWithRedirect quando a página recarrega
-        // vinda do Google. Precisa rodar antes/junto do onAuthStateChanged.
-        async function processarRetornoLoginGoogle() {
+        // Roda uma vez, ao carregar a página — confere se a gente acabou de
+        // voltar de um redirect de login do Google, e se sim, garante que o
+        // documento do salão existe (1º acesso) antes do onAuthStateChanged
+        // seguir com o carregamento normal do painel.
+        async function processarRetornoGoogle() {
             try {
                 const resultado = await getRedirectResult(auth);
-                if (!resultado) return; // não veio de um redirect do Google
-                const user = resultado.user;
-
-                // Primeiro acesso via Google: ainda não existe documento do salão,
-                // então criamos automaticamente com o trial de 15 dias (mesma
-                // regra do cadastro por e-mail/senha). O WhatsApp do salão fica
-                // vazio por enquanto — o dono completa depois em Perfil.
-                const salaoRef = doc(db, 'saloes', user.uid);
-                const salaoSnap = await getDoc(salaoRef);
-                if (!salaoSnap.exists()) {
-                    const agora = new Date();
-                    const expiracao = new Date(agora);
-                    expiracao.setDate(expiracao.getDate() + 15);
-                    await setDoc(salaoRef, {
-                        nomeSalao: user.displayName || 'Meu Salão',
-                        email: user.email || '',
-                        whatsapp: '',
-                        status: 'trial',
-                        trialInicio: Timestamp.fromDate(agora),
-                        trialExpiracao: Timestamp.fromDate(expiracao),
-                        criadoEm: Timestamp.fromDate(agora),
-                        plano: 'basico',
-                    });
-                    showToast('✅ Conta criada com Google! Seu trial de 15 dias começou.');
-                } else {
-                    showToast('Login realizado com sucesso!');
+                if (resultado && resultado.user) {
+                    const criouAgora = await garantirDocumentoSalaoGoogle(resultado.user);
+                    showToast(criouAgora
+                        ? '✅ Conta criada com Google! Seu trial de 15 dias começou.'
+                        : 'Login realizado com sucesso!');
+                    const telaCadastro = document.getElementById('screen-cadastro');
+                    if (telaCadastro) telaCadastro.style.display = 'none';
                 }
-                document.getElementById('screen-cadastro').style.display = 'none';
             } catch (err) {
-                console.error('Erro no login com Google:', err);
-                const errEl = document.getElementById('auth-error') || document.getElementById('cadastro-error');
+                if (!err.code) return;
+                console.error('Erro ao concluir login com Google:', err);
                 const msg = err.code === 'auth/account-exists-with-different-credential'
                     ? 'Este e-mail já está cadastrado com senha. Entre com e-mail e senha.'
-                    : 'Não foi possível entrar com o Google. Tente novamente.';
-                if (errEl) errEl.innerText = msg;
+                    : 'Não foi possível concluir o login com o Google. Tente novamente.';
                 showToast(msg, true);
             }
         }
+        processarRetornoGoogle();
 
         window.esqueciSenha = async () => {
             const errEl = document.getElementById('auth-error');
@@ -5698,7 +5705,6 @@
         } else if (salonIdParaAgendarPublico) {
             iniciarAgendamentoPublico(salonIdParaAgendarPublico);
         } else {
-            processarRetornoLoginGoogle().finally(() => {
             onAuthStateChanged(auth, async (user) => {
                 if (user) { 
                 await checkSystemAccess(user); 
@@ -5714,7 +5720,6 @@
                 acessoLiberadoGlobal = false;
             }
         });
-            }); // fecha o .finally() do processarRetornoLoginGoogle()
         } // fecha o else { } do bloco "não é link de agendamento público"
 
         // Recalcula o trial automaticamente quando a aba/janela volta ao foco,
