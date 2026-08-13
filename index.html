@@ -2632,7 +2632,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, where, onSnapshot, orderBy, Timestamp, getDocs, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
@@ -5267,69 +5267,55 @@
             return true;
         }
 
+        // A WebView do Kodular (usada no APK do app) não suporta popup nem
+        // entrega corretamente o resultado de um redirect entre domínios — o
+        // login do Google simplesmente não funciona ali (limitação do Android
+        // WebView + política do próprio Google contra login embutido). Detecta
+        // isso pra avisar em vez de deixar o botão falhar sem explicação.
+        function estaDentroDeWebViewApp() {
+            const ua = navigator.userAgent || '';
+            // WebViews Android costumam ter "; wv)" no user-agent, diferente do
+            // Chrome "de verdade" no celular
+            return /; wv\)/.test(ua) || (window.AppInventor !== undefined);
+        }
+
         window.loginComGoogle = async () => {
+            const errEl = document.getElementById('auth-error') || document.getElementById('cadastro-error');
+            if (estaDentroDeWebViewApp()) {
+                const msg = 'O login com Google não funciona dentro do app. Abra o CorteZap pelo navegador (Chrome) pra usar essa opção, ou entre com e-mail e senha aqui no app.';
+                if (errEl) errEl.innerText = msg;
+                showToast(msg, true);
+                return;
+            }
             try {
-                // Marca que uma tentativa de login com Google está em andamento —
-                // usado só pra diagnosticar: se a página recarregar e essa marca
-                // ainda estiver lá sem um resultado do Firebase, sabemos que o
-                // retorno do redirect se perdeu (não é erro do nosso código em si).
-                sessionStorage.setItem('google_login_pendente', '1');
-                // Usa redirect (navega a própria página até o Google e volta) em
-                // vez de popup — popup depende de window.open()+postMessage, que
-                // não funciona dentro da WebView do app (Kodular), fazendo o
-                // Android abrir o Google no Chrome externo e perder a ligação
-                // com o app. Redirect é só navegação normal, funciona dentro da WebView.
+                // Popup: mantém a janela original aberta e recebe o resultado
+                // direto dela — evita a "entrega" frágil entre o domínio ponte
+                // do Firebase (firebaseapp.com) e o domínio do site (github.io)
+                // que o método de redirect exige, e que se mostrou não confiável
+                // nos testes (login completava no Google mas não voltava confirmado).
                 const provider = new GoogleAuthProvider();
-                await signInWithRedirect(auth, provider);
-                // A partir daqui a página vai navegar pro Google — o resto do
-                // fluxo (criar documento do salão, se for a 1ª vez) continua em
-                // "processarRetornoGoogle()", chamada quando a página recarrega.
+                const resultado = await signInWithPopup(auth, provider);
+                const criouAgora = await garantirDocumentoSalaoGoogle(resultado.user);
+                showToast(criouAgora
+                    ? '✅ Conta criada com Google! Seu trial de 15 dias começou.'
+                    : 'Login realizado com sucesso!');
+                if (errEl) errEl.innerText = '';
+                const telaCadastro = document.getElementById('screen-cadastro');
+                if (telaCadastro) telaCadastro.style.display = 'none';
             } catch (err) {
-                sessionStorage.removeItem('google_login_pendente');
-                console.error('Erro ao iniciar login com Google:', err);
-                const errEl = document.getElementById('auth-error') || document.getElementById('cadastro-error');
-                const msg = 'Não foi possível abrir o login do Google. Tente novamente.';
+                // Usuário fechou a popup ou o navegador bloqueou — não é bem um
+                // "erro", então não mostra mensagem alarmante nesse caso
+                if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') return;
+                console.error('Erro no login com Google:', err);
+                const msg = err.code === 'auth/account-exists-with-different-credential'
+                    ? 'Este e-mail já está cadastrado com senha. Entre com e-mail e senha.'
+                    : err.code === 'auth/popup-blocked'
+                    ? 'O navegador bloqueou a janela de login. Permita popups pra este site e tente de novo.'
+                    : 'Não foi possível entrar com o Google. Tente novamente.';
                 if (errEl) errEl.innerText = msg;
                 showToast(msg, true);
             }
         };
-
-        // Roda uma vez, ao carregar a página — confere se a gente acabou de
-        // voltar de um redirect de login do Google, e se sim, garante que o
-        // documento do salão existe (1º acesso) antes do onAuthStateChanged
-        // seguir com o carregamento normal do painel.
-        async function processarRetornoGoogle() {
-            const estavaTentandoLoginGoogle = sessionStorage.getItem('google_login_pendente') === '1';
-            try {
-                const resultado = await getRedirectResult(auth);
-                if (resultado && resultado.user) {
-                    sessionStorage.removeItem('google_login_pendente');
-                    const criouAgora = await garantirDocumentoSalaoGoogle(resultado.user);
-                    showToast(criouAgora
-                        ? '✅ Conta criada com Google! Seu trial de 15 dias começou.'
-                        : 'Login realizado com sucesso!');
-                    const telaCadastro = document.getElementById('screen-cadastro');
-                    if (telaCadastro) telaCadastro.style.display = 'none';
-                } else if (estavaTentandoLoginGoogle) {
-                    // A página voltou do Google, mas o Firebase não trouxe
-                    // nenhum resultado — o navegador perdeu a "ficha" da tentativa
-                    // de login no meio do caminho (não é um erro comum, então
-                    // avisamos explicitamente em vez de falhar em silêncio).
-                    sessionStorage.removeItem('google_login_pendente');
-                    console.warn('getRedirectResult voltou vazio após um login com Google iniciado nesta aba.');
-                    showToast('O login com Google não foi confirmado pelo navegador. Tente novamente ou use e-mail e senha.', true);
-                }
-            } catch (err) {
-                sessionStorage.removeItem('google_login_pendente');
-                if (!err.code) return;
-                console.error('Erro ao concluir login com Google:', err);
-                const msg = err.code === 'auth/account-exists-with-different-credential'
-                    ? 'Este e-mail já está cadastrado com senha. Entre com e-mail e senha.'
-                    : 'Não foi possível concluir o login com o Google. Tente novamente.';
-                showToast(msg, true);
-            }
-        }
-        processarRetornoGoogle();
 
         window.esqueciSenha = async () => {
             const errEl = document.getElementById('auth-error');
