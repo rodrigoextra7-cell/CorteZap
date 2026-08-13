@@ -5269,6 +5269,11 @@
 
         window.loginComGoogle = async () => {
             try {
+                // Marca que uma tentativa de login com Google está em andamento —
+                // usado só pra diagnosticar: se a página recarregar e essa marca
+                // ainda estiver lá sem um resultado do Firebase, sabemos que o
+                // retorno do redirect se perdeu (não é erro do nosso código em si).
+                sessionStorage.setItem('google_login_pendente', '1');
                 // Usa redirect (navega a própria página até o Google e volta) em
                 // vez de popup — popup depende de window.open()+postMessage, que
                 // não funciona dentro da WebView do app (Kodular), fazendo o
@@ -5280,6 +5285,7 @@
                 // fluxo (criar documento do salão, se for a 1ª vez) continua em
                 // "processarRetornoGoogle()", chamada quando a página recarrega.
             } catch (err) {
+                sessionStorage.removeItem('google_login_pendente');
                 console.error('Erro ao iniciar login com Google:', err);
                 const errEl = document.getElementById('auth-error') || document.getElementById('cadastro-error');
                 const msg = 'Não foi possível abrir o login do Google. Tente novamente.';
@@ -5293,17 +5299,28 @@
         // documento do salão existe (1º acesso) antes do onAuthStateChanged
         // seguir com o carregamento normal do painel.
         async function processarRetornoGoogle() {
+            const estavaTentandoLoginGoogle = sessionStorage.getItem('google_login_pendente') === '1';
             try {
                 const resultado = await getRedirectResult(auth);
                 if (resultado && resultado.user) {
+                    sessionStorage.removeItem('google_login_pendente');
                     const criouAgora = await garantirDocumentoSalaoGoogle(resultado.user);
                     showToast(criouAgora
                         ? '✅ Conta criada com Google! Seu trial de 15 dias começou.'
                         : 'Login realizado com sucesso!');
                     const telaCadastro = document.getElementById('screen-cadastro');
                     if (telaCadastro) telaCadastro.style.display = 'none';
+                } else if (estavaTentandoLoginGoogle) {
+                    // A página voltou do Google, mas o Firebase não trouxe
+                    // nenhum resultado — o navegador perdeu a "ficha" da tentativa
+                    // de login no meio do caminho (não é um erro comum, então
+                    // avisamos explicitamente em vez de falhar em silêncio).
+                    sessionStorage.removeItem('google_login_pendente');
+                    console.warn('getRedirectResult voltou vazio após um login com Google iniciado nesta aba.');
+                    showToast('O login com Google não foi confirmado pelo navegador. Tente novamente ou use e-mail e senha.', true);
                 }
             } catch (err) {
+                sessionStorage.removeItem('google_login_pendente');
                 if (!err.code) return;
                 console.error('Erro ao concluir login com Google:', err);
                 const msg = err.code === 'auth/account-exists-with-different-credential'
