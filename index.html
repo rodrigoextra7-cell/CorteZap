@@ -5986,8 +5986,6 @@
                     const isCancelado = b.status === 'cancelado';
                     const isPendente = !isPago && !isCancelado;
 
-                    debugHtml += `• <b>${b.cliente||'?'}</b> | ${dt.toLocaleDateString('pt-BR')} | R$${preco} | ${b.status||'?'} | 7d:${isPendente && dt >= hoje && dt <= semanaFim}<br>`;
-
                     if (isPendente && dt >= hoje && dt <= semanaFim) weekCount++;
 
                     if (isPago) {
@@ -6004,12 +6002,6 @@
                 const elP = document.getElementById('month-previsto');
                 if (elP) elP.innerText = 'R$' + monthPrevisto.toFixed(2);
                 atualizarLucroLiquidoReal();
-
-                const painel = document.getElementById('painel-debug');
-                if (painel) {
-                    painel.innerHTML = debugHtml + '<br><b>7 dias:</b> ' + weekCount + ' | <b>Recebido:</b> R$' + monthRevenue.toFixed(2) + ' | <b>Previsto:</b> R$' + monthPrevisto.toFixed(2);
-                    painel.style.display = 'block';
-                }
 
                 if (document.getElementById('page-reports').classList.contains('active')) carregarRelatorios();
             }, (erro) => {
