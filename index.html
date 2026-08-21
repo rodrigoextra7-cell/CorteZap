@@ -2495,11 +2495,11 @@
                 </details>
                 <details class="faq-item" data-video-id="" data-faq-id="remun-clt">
                     <summary>O que é o perfil "CLT"?</summary>
-                    <p>Pra profissionais contratados formalmente. Eles têm um <strong>salário base mensal fixo</strong>, mais uma comissão (geralmente menor) sobre os atendimentos. O total do mês aparece na tela de Folha de Pagamento, em Relatórios.</p>
+                    <p>Pra profissionais contratados formalmente. Eles têm um <strong>salário base mensal fixo</strong>, mais uma comissão (geralmente menor) sobre os atendimentos. Você define o salário e o percentual de comissão na hora de cadastrar (ou editar) o profissional, na tela de Gestão da Equipe. O total do mês (salário + comissões do período) aparece somado na tela de Folha de Pagamento, em Relatórios.</p>
                 </details>
                 <details class="faq-item" data-video-id="" data-faq-id="remun-aluguel">
                     <summary>O que é o perfil "Aluguel de Cadeira"?</summary>
-                    <p>O profissional é independente: ele fica com 100% do que cobra dos clientes, e paga um valor fixo (semanal ou mensal) pelo uso do espaço/cadeira do salão. O CorteZap gera essa cobrança automaticamente na data combinada.</p>
+                    <p>O profissional é independente: ele fica com 100% do que cobra dos clientes, e paga um valor fixo (semanal ou mensal) pelo uso do espaço/cadeira do salão. Você configura o valor, a periodicidade e o dia de vencimento na hora de cadastrar (ou editar) esse profissional, na tela de Gestão da Equipe. O CorteZap gera a cobrança sozinho, na data combinada.</p>
                 </details>
                 <details class="faq-item" data-video-id="" data-faq-id="remun-calculo-comissao">
                     <summary>Como a comissão é calculada?</summary>
@@ -2515,7 +2515,8 @@
                 </details>
                 <details class="faq-item" data-video-id="" data-faq-id="remun-cobranca-aluguel">
                     <summary>Como funciona a cobrança do aluguel de cadeira?</summary>
-                    <p>O sistema verifica todo dia se algum profissional de aluguel tem vencimento naquela data e gera a cobrança sozinho — você só precisa marcar como "pago" quando receber. Acompanhe em <strong>Relatórios → Cobranças de Aluguel de Cadeira</strong>.</p>
+                    <p>O sistema verifica todo dia se algum profissional de aluguel tem vencimento naquela data e gera a cobrança sozinho, sem você precisar fazer nada. Ela aparece em <strong>Relatórios → Cobranças de Aluguel de Cadeira</strong>, junto com o nome do profissional, o valor e o vencimento.</p>
+                    <p>Pra confirmar que recebeu, toque no <strong>ícone de check (✓)</strong> que fica do lado direito de cada cobrança pendente — ele some assim que você confirma, e o status muda pra "Pago". Cobranças já pagas não mostram mais esse ícone.</p>
                 </details>
             </div>
 
@@ -2581,6 +2582,10 @@
                     <summary>Esse agendamento aparece na minha agenda normal?</summary>
                     <p>Sim, assim que o depósito é pago, ele aparece na tela de Início junto com os outros, igual qualquer agendamento feito por você.</p>
                 </details>
+                <details class="faq-item" data-video-id="" data-faq-id="agpub-multiplos-servicos">
+                    <summary>O cliente pode marcar mais de um serviço de uma vez?</summary>
+                    <p>Sim. Na tela pública, o cliente marca quantos serviços quiser (ex: corte + barba) e, pra cada um, escolhe um profissional — pode ser o mesmo pra todos ou pessoas diferentes. O sistema já calcula o horário certo pra cadeia toda, encaixando um serviço depois do outro em sequência, e soma o valor total automaticamente.</p>
+                </details>
                 <details class="faq-item" data-video-id="" data-faq-id="agpub-e-premium">
                     <summary>Isso é Premium?</summary>
                     <p>Não, liberado pra todos os planos.</p>
@@ -2591,11 +2596,23 @@
                 <h4>📅 Agendamentos e Depósito</h4>
                 <details class="faq-item" data-video-id="" data-faq-id="agenda-deposito-antifuro">
                     <summary>O que é o depósito anti-furo?</summary>
-                    <p>É um valor cobrado via Pix na hora de agendar, pra reduzir faltas ("furos"). Se o cliente não comparecer, você define a política: reembolsar ou reter o valor.</p>
+                    <p>É um valor cobrado via Pix na hora de agendar, pra reduzir faltas ("furos"). Você define a política em <strong>Perfil → Política de Depósito</strong>: escolha entre <strong>reembolsável</strong> (devolve o valor se o cliente faltar) ou <strong>não reembolsável</strong> (retém o valor em caso de falta). Essa escolha vale tanto pro agendamento manual quanto pro link público.</p>
                 </details>
                 <details class="faq-item" data-video-id="" data-faq-id="agenda-reagendar">
                     <summary>Como reagendo um cliente?</summary>
                     <p>Na tela de Início, toque no agendamento e escolha a opção de reagendar. O histórico do cliente continua o mesmo.</p>
+                </details>
+            </div>
+
+            <div class="card faq-grupo">
+                <h4>🔐 Login e Conta</h4>
+                <details class="faq-item" data-video-id="" data-faq-id="login-google">
+                    <summary>Posso entrar com minha conta do Google?</summary>
+                    <p>Sim, direto na tela de login, no botão "Entrar com Google". No primeiro acesso assim, o CorteZap já cria sua conta automaticamente com o trial de 15 dias. Essa opção funciona normalmente pelo navegador (Chrome, etc.); dentro do aplicativo instalado no celular, ela usa o login nativo do Google do próprio Android.</p>
+                </details>
+                <details class="faq-item" data-video-id="" data-faq-id="login-esqueci-senha">
+                    <summary>Esqueci minha senha, e agora?</summary>
+                    <p>Na tela de login, toque em <strong>"Esqueci minha senha"</strong>, digite o e-mail da sua conta e você vai receber um link por e-mail pra criar uma senha nova. Se você entrou originalmente com o Google, não existe senha cadastrada — nesse caso, use sempre o botão "Entrar com Google".</p>
                 </details>
             </div>
 
